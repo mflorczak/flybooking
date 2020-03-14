@@ -63,9 +63,9 @@ public class SearchSessionService {
         } else {
             try {
                 com.fasterxml.jackson.databind.JsonNode jsonNode = objectMapper.readTree(response.getBody().toString());
-                getJsonDataFromSession(jsonNode);
+                setJsonNodeData(jsonNode);
 
-                String json = objectMapper.writeValueAsString(jsonNode.get("Carriers"));
+//                String json = objectMapper.writeValueAsString(jsonNode.get("Carriers"));
 
 //                Carrier[] asArray = objectMapper.readValue(json, Carrier[].class);
 //                List<Carrier> carriers = new ArrayList<>(Arrays.asList(asArray));
@@ -79,7 +79,7 @@ public class SearchSessionService {
         }
     }
 
-    public void getJsonDataFromSession(com.fasterxml.jackson.databind.JsonNode jsonNodeData) {
+    public void setJsonNodeData(com.fasterxml.jackson.databind.JsonNode jsonNodeData) {
         this.jsonNodeData = jsonNodeData;
     }
 }
