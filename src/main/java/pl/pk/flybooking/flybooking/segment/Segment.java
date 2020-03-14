@@ -22,9 +22,9 @@ public class Segment {
     @JsonProperty("ArrivalDateTime")
     private String arrivalDateTime;
     @JsonProperty("JourneyMode")
-    private String kourneyMode;
+    private String journeyMode;
     @JsonProperty("DestinationStation")
-    private String destinationStation;
+    private Long destinationStation;
     @JsonProperty("OperatingCarrier")
     private Long OperatingCarrier;
     @JsonProperty("FlightNumber")
@@ -35,5 +35,5 @@ public class Segment {
     @JsonProperty("Id")
     private Long id;
     @JsonProperty("Carrier")
-    private Long carrier;
+    private Long carrierId;
 }

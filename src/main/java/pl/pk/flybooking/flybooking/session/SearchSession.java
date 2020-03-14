@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.text.ParseException;
 
 @RestController
 @RequestMapping(path = "/session")
@@ -27,7 +28,7 @@ public class SearchSession {
         searchSessionService.getJsonDataFromSession("734bf7ac-56b8-40cb-b787-b74f35e84fe1");
     }
     @GetMapping("/a")
-    public void get() throws IOException {
+    public void get() throws IOException, ParseException {
         searchSessionService.dataFromFile();
     }
 }

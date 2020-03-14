@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import pl.pk.flybooking.flybooking.carrier.Carrier;
 import pl.pk.flybooking.flybooking.carrier.CarrierService;
 import pl.pk.flybooking.flybooking.carrier.CarrierParser;
+import pl.pk.flybooking.flybooking.flight.FlightService;
 import pl.pk.flybooking.flybooking.parser.Parser;
 import pl.pk.flybooking.flybooking.place.Place;
 import pl.pk.flybooking.flybooking.place.PlaceParser;
@@ -21,6 +22,7 @@ import pl.pk.flybooking.flybooking.segment.SegmentService;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.ParseException;
 
 @Service
 @AllArgsConstructor
@@ -45,6 +47,7 @@ public class SearchSessionService {
     private CarrierService carrierService;
     private PlaceService placeService;
     private SegmentService segmentService;
+    private FlightService flightService;
 
     public String getSessionKey() throws UnirestException {
 
@@ -67,7 +70,7 @@ public class SearchSessionService {
         return getLocationStringFromURL(locationURL);
     }
 
-    public void dataFromFile() throws IOException {
+    public void dataFromFile() throws IOException, ParseException {
         String content = new String(Files.readAllBytes(Paths.get("a.json")));
         ObjectMapper objectMapper = new ObjectMapper();
 
@@ -79,6 +82,8 @@ public class SearchSessionService {
         placeService.addPlacesFromList(placeParser.parse(jsonNode));
         Parser<Segment> segmentParser = new SegmentParser();
         segmentService.addSegmentsFromList(segmentParser.parse(jsonNode));
+
+        flightService.createFlights();
     }
 
     public void getJsonDataFromSession(String sessionKey) throws UnirestException, IOException {
