@@ -1,12 +1,10 @@
 spring:
   jpa:
-    database-platform: org.hibernate.dialect.MySQL5Dialect
+    database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
       ddl-auto: update
 
   datasource:
-    url: jdbc:mysql://database-2.cvyhsoweumof.eu-central-1.rds.amazonaws.com:3306/mysql
+    url: jdbc:mysql://database-2.cvyhsoweumof.eu-central-1.rds.amazonaws.com:3306/studia
     username: dzialaj
-    password: UIPz9WPs7XG33b4qenQx
-
-
+    password: UIPz9WPs7XG33b4qenQxgt
