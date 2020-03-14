@@ -1,85 +1,93 @@
 package pl.pk.flybooking.flybooking.session;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import pl.pk.flybooking.flybooking.carrier.Carrier;
+import pl.pk.flybooking.flybooking.carrier.CarrierService;
+import pl.pk.flybooking.flybooking.carrier.CarrierParser;
+import pl.pk.flybooking.flybooking.parser.Parser;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 @Service
-@NoArgsConstructor
+@AllArgsConstructor
 public class SearchSessionService {
 
     private final static String UNIREST_POST_URL = "https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/pricing/v1.0";
     private final static String X_RAPIDAPI_HOST = "skyscanner-skyscanner-flight-search-v1.p.rapidapi.com";
-    private final static String X_RAPIDAPI_KEY = "caa574b2fdmsh4860ed5279957d0p1c2c5bjsn4f539dd8260d";
+    private final static String X_RAPIDAPI_KEY = "220e772a27msha3e8d185aa8940bp1ccde7jsn5993ab18422e";
     private final static String CONTENT_TYPE = "application/x-www-form-urlencoded";
+    private final static String COUNTRY = "country";
+    private final static String CURRENCY = "currency";
+    private final static String LOCALE = "locale";
+    private final static String ORIGIN_PLACE = "originPlace";
+    private final static String DESTINATION_PLACE = "destinationPlace";
+    private final static String OUTBOUND_DATE = "outboundDate";
+    private final static String ADULTS = "adults";
+    private final static String INBOUND_DATE = "inboundDate";
+    private final static String UNIREST_POST_URL_HEADER = "X-RapidAPI-Host";
+    private final static String X_RAPIDAPI_KEY_HEADER = "X-RapidAPI-Key";
+    private final static String CONTENT_TYPE_HEADER = "Content-Type";
 
-    private com.fasterxml.jackson.databind.JsonNode jsonNodeData;
+    private CarrierService carrierService;
 
-    public boolean getSessionKey() throws UnirestException {
 
-        HttpResponse<JsonNode> response =
-                Unirest.post(UNIREST_POST_URL)
-                        .header("X-RapidAPI-Host", X_RAPIDAPI_HOST)
-                        .header("X-RapidAPI-Key", X_RAPIDAPI_KEY)
-                        .header("Content-Type", CONTENT_TYPE)
+    public String getSessionKey() throws UnirestException {
 
-                        .field("country", "US")
-                        .field("currency", "USD")
-                        .field("locale", "en-US")
-                        .field("originPlace", "SFO-sky")
-                        .field("destinationPlace", "LHR-sky")
-                        .field("outboundDate", "2020-03-14")
-                        .field("adults", 1)
-                        .field("inboundDate", "2020-03-31")
-                        .asJson();
+        HttpResponse<JsonNode> response = Unirest.post(UNIREST_POST_URL)
+                .header(UNIREST_POST_URL_HEADER, X_RAPIDAPI_HOST)
+                .header(X_RAPIDAPI_KEY_HEADER, X_RAPIDAPI_KEY)
+                .header(CONTENT_TYPE_HEADER, CONTENT_TYPE)
+                .field(COUNTRY, "US")
+                .field(CURRENCY, "USD")
+                .field(LOCALE, "en-US")
+                .field(ORIGIN_PLACE, "SFO-sky")
+                .field(DESTINATION_PLACE, "LHR-sky")
+                .field(OUTBOUND_DATE, "2020-03-14")
+                .field(ADULTS, 1)
+                .field(INBOUND_DATE, "2020-03-31")
+                .asJson();
 
-        if (null == response || response.getHeaders().toString().isEmpty()) {
-            throw new UnirestException("Failed to create session");
-        } else {
-            String locationURL = response.getHeaders().getFirst("Location");
-            getJsonDataFromSession(getLocationStringFromURL(locationURL));
-            return true;
-        }
+        String locationURL = response.getHeaders().getFirst("Location");
+        System.out.println(locationURL);
+        return getLocationStringFromURL(locationURL);
     }
+
+    public void dataFromFile() throws IOException {
+        String content = new String(Files.readAllBytes(Paths.get("a.json")));
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        com.fasterxml.jackson.databind.JsonNode jsonNode = objectMapper.readTree(content);
+
+        Parser<Carrier> carrierParser = new CarrierParser();
+        carrierService.addCarriersList(carrierParser.parse(jsonNode));
+
+    }
+
+    public void getJsonDataFromSession(String sessionKey) throws UnirestException, IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        HttpResponse<JsonNode> response = Unirest.get("https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/pricing/uk2/v1.0/734bf7ac-56b8-40cb-b787-b74f35e84fe1?pageIndex=0&pageSize=10")
+                .header("x-rapidapi-host", "skyscanner-skyscanner-flight-search-v1.p.rapidapi.com")
+                .header("x-rapidapi-key", "220e772a27msha3e8d185aa8940bp1ccde7jsn5993ab18422e")
+                .asJson();
+
+        //setJsonNodeData(response.getBody());
+        //com.fasterxml.jackson.databind.JsonNode jsonNode = objectMapper.readTree(response.getBody().toString());
+        //setJsonNode(jsonNode);
+        //return objectMapper.writeValueAsString(jsonNode);
+    }
+
 
     private static String getLocationStringFromURL(String locationURL) {
         return locationURL.substring(locationURL.lastIndexOf("/") + 1);
     }
 
-    private void getJsonDataFromSession(String sessionKey) throws UnirestException {
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        HttpResponse<JsonNode> response = Unirest.get(UNIREST_POST_URL + sessionKey + "?pageIndex=0&pageSize=10")
-                .header("X-RapidAPI-Host", X_RAPIDAPI_HOST)
-                .header("X-RapidAPI-Key", X_RAPIDAPI_KEY).asJson();
-
-        if (null == response || response.getHeaders().toString().isEmpty()) {
-            throw new UnirestException("Failed to create session");
-        } else {
-            try {
-                com.fasterxml.jackson.databind.JsonNode jsonNode = objectMapper.readTree(response.getBody().toString());
-                setJsonNodeData(jsonNode);
-
-//                String json = objectMapper.writeValueAsString(jsonNode.get("Carriers"));
-
-//                Carrier[] asArray = objectMapper.readValue(json, Carrier[].class);
-//                List<Carrier> carriers = new ArrayList<>(Arrays.asList(asArray));
-//                for (Carrier carrier : carriers) {
-//                    System.out.println(carrier);
-//                }
-
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public void setJsonNodeData(com.fasterxml.jackson.databind.JsonNode jsonNodeData) {
-        this.jsonNodeData = jsonNodeData;
-    }
 }

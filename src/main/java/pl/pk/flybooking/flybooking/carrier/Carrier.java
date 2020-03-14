@@ -1,4 +1,4 @@
-package pl.pk.flybooking.flybooking;
+package pl.pk.flybooking.flybooking.carrier;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
