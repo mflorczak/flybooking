@@ -1,4 +1,4 @@
-package pl.pk.flybooking.flybooking.carrier;
+package pl.pk.flybooking.flybooking.place;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -9,14 +9,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class CarrierParser implements Parser<Carrier> {
-
+public class PlaceParser implements Parser<Place> {
     final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public List<Carrier> parse(JsonNode jsonNodeData) throws JsonProcessingException {
-        String carriersString = objectMapper.writeValueAsString(jsonNodeData.get("Carriers"));
-        Carrier[] asArray = objectMapper.readValue(carriersString, Carrier[].class);
+    public List<Place> parse(JsonNode jsonNodeData) throws JsonProcessingException {
+        String placeString = objectMapper.writeValueAsString(jsonNodeData.get("Places"));
+        Place[] asArray = objectMapper.readValue(placeString, Place[].class);
         return new ArrayList<>(Arrays.asList(asArray));
     }
 }

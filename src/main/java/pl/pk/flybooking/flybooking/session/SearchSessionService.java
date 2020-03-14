@@ -11,6 +11,12 @@ import pl.pk.flybooking.flybooking.carrier.Carrier;
 import pl.pk.flybooking.flybooking.carrier.CarrierService;
 import pl.pk.flybooking.flybooking.carrier.CarrierParser;
 import pl.pk.flybooking.flybooking.parser.Parser;
+import pl.pk.flybooking.flybooking.place.Place;
+import pl.pk.flybooking.flybooking.place.PlaceParser;
+import pl.pk.flybooking.flybooking.place.PlaceService;
+import pl.pk.flybooking.flybooking.segment.Segment;
+import pl.pk.flybooking.flybooking.segment.SegmentParser;
+import pl.pk.flybooking.flybooking.segment.SegmentService;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -37,7 +43,8 @@ public class SearchSessionService {
     private final static String CONTENT_TYPE_HEADER = "Content-Type";
 
     private CarrierService carrierService;
-
+    private PlaceService placeService;
+    private SegmentService segmentService;
 
     public String getSessionKey() throws UnirestException {
 
@@ -67,8 +74,11 @@ public class SearchSessionService {
         com.fasterxml.jackson.databind.JsonNode jsonNode = objectMapper.readTree(content);
 
         Parser<Carrier> carrierParser = new CarrierParser();
-        carrierService.addCarriersList(carrierParser.parse(jsonNode));
-
+        carrierService.addCarriersFromList(carrierParser.parse(jsonNode));
+        Parser<Place> placeParser = new PlaceParser();
+        placeService.addPlacesFromList(placeParser.parse(jsonNode));
+        Parser<Segment> segmentParser = new SegmentParser();
+        segmentService.addSegmentsFromList(segmentParser.parse(jsonNode));
     }
 
     public void getJsonDataFromSession(String sessionKey) throws UnirestException, IOException {

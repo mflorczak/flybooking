@@ -11,7 +11,7 @@ public class CarrierService {
 
     private CarrierRepository carrierRepository;
 
-    public void addCarriersList(Collection<Carrier> carriers){
+    public void addCarriersFromList(Collection<Carrier> carriers){
         for(Carrier carrier : carriers){
             carrierRepository.save(carrier);
         }
