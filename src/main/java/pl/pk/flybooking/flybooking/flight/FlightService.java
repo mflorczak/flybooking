@@ -34,10 +34,12 @@ public class FlightService {
             flight.setDesitnationStation(placeRepository.findById(segment.getDestinationStation()).get());
             flight.setDepartureDateTime(formatDate(segment.getDepartureDateTime()));
             flight.setArrivalDateTime(formatDate(segment.getArrivalDateTime()));
-
-            flights.add(flight);
+            flight.setFlightNumber(segment.getFlightNumber());
+            flight.setCarrier(carrierRepository.findById(segment.getCarrierId()).get());
+            //flights.add(flight);
+            flightRepository.save(flight);
         }
-        flights.forEach(System.out::println);
+        //flights.forEach(System.out::println);
         return flights;
     }
 
