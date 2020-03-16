@@ -1,4 +1,4 @@
-package pl.pk.flybooking.flybooking.model;
+package pl.pk.flybooking.flybooking.role.model;
 
 public enum RoleName {
     ROLE_USER,
