@@ -11,9 +11,15 @@ public class PlaceService {
     private PlaceRepository placeRepository;
 
     public void addPlacesFromList(Collection<Place> places) {
-        for (Place place : places) {
-            placeRepository.save(place);
-        }
+        placeRepository.saveAll(places);
     }
 
+    public void clearPlaceTable() {
+        if (placeRepository.count() > 0)
+            placeRepository.deleteAll();
+    }
+
+    //private List<Place> filterPlacesById(){
+
+    //}
 }

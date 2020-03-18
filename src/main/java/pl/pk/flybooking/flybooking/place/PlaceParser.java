@@ -14,6 +14,20 @@ public class PlaceParser implements Parser<Place> {
 
     @Override
     public List<Place> parse(JsonNode jsonNodeData) throws JsonProcessingException {
+//        List<Place> places = new ArrayList<>();
+//        jsonNodeData.get("Places").forEach(n -> {
+//            Place place = new Place();
+//
+//            place.setCode(String.valueOf(n.get("Code")));
+//            place.setName(String.valueOf(n.get("Name")));
+//            place.setId(Long.valueOf(String.valueOf(n.get("Id"))));
+//            //place.setParentId(Long.valueOf(String.valueOf(n.get("ParentId"))));
+//            place.setType(String.valueOf(n.get("Type")));
+//
+//            places.add(place);
+//        });
+//
+//        return places;
         String placeString = objectMapper.writeValueAsString(jsonNodeData.get("Places"));
         Place[] asArray = objectMapper.readValue(placeString, Place[].class);
         return new ArrayList<>(Arrays.asList(asArray));

@@ -15,12 +15,12 @@ import java.util.Date;
 @Data
 public class Flight {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    //@GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @OneToOne
     private Place originStation;
     @OneToOne
-    private Place desitnationStation;
+    private Place destinationStation;
 
     private Date departureDateTime;
     private Date arrivalDateTime;
