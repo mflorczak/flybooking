@@ -7,6 +7,24 @@ spring:
       format_sql: true
       use_sql_comments: true
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: flybookingprojekt@gmail.com
+    password: aB1234567
+
+    properties:
+      mail:
+        smtp:
+          auth: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+          starttls:
+            enable: true
+            required: true
+
+
   datasource:
     url: jdbc:postgresql://database-1.cvyhsoweumof.eu-central-1.rds.amazonaws.com/postgres
     username: postgres

@@ -1,5 +1,6 @@
 package pl.pk.flybooking.flybooking.user.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -10,6 +11,7 @@ import pl.pk.flybooking.flybooking.role.model.Role;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,26 +22,37 @@ import java.util.Set;
 @Table(name = "users")
 public class User extends DateAudit {
 
+    public interface UserViews {
+        interface SignUp {}
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank
+    @JsonView(UserViews.SignUp.class)
     private String name;
 
     @NotBlank
+    @JsonView(UserViews.SignUp.class)
     private String surname;
 
     @NotBlank
+    @JsonView(UserViews.SignUp.class)
     private String username;
 
     @NotBlank
+    @JsonView(UserViews.SignUp.class)
     private String password;
 
     @NaturalId
     @NotBlank
     @Email
+    @JsonView(UserViews.SignUp.class)
     private String email;
+
+    private Boolean enabled;
 
     @ManyToMany
     @JoinTable(

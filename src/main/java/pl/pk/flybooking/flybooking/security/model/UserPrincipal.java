@@ -31,6 +31,8 @@ public class UserPrincipal implements UserDetails {
     @JsonIgnore
     private String email;
 
+    private boolean isEnabled;
+
     private List<GrantedAuthority> authorities;
 
     public static UserPrincipal create(User user) {
@@ -45,6 +47,7 @@ public class UserPrincipal implements UserDetails {
                 user.getUsername(),
                 user.getPassword(),
                 user.getEmail(),
+                user.getEnabled(),
                 authorities
         );
     }
@@ -82,7 +85,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return isEnabled;
     }
 
     @Override
