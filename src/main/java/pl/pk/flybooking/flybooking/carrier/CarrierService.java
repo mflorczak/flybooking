@@ -11,12 +11,12 @@ public class CarrierService {
 
     private CarrierRepository carrierRepository;
 
-    public void addCarriersFromList(Collection<Carrier> carriers){
-        if (carrierRepository.count() > 0)
+    public void addCarriersFromList(Collection<Carrier> carriers) {
         carrierRepository.saveAll(carriers);
     }
 
-    public void clearCarrierTable(){
-        carrierRepository.deleteAll();
+    public void clearCarrierTable() {
+        if (carrierRepository.count() > 0)
+            carrierRepository.deleteAll();
     }
 }

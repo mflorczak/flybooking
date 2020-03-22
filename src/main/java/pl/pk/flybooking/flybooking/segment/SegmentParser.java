@@ -5,9 +5,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import pl.pk.flybooking.flybooking.parser.Parser;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SegmentParser implements Parser<Segment> {
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -15,7 +15,8 @@ public class SegmentParser implements Parser<Segment> {
     public List<Segment> parse(JsonNode jsonNodeData) throws JsonProcessingException {
         String segmentString  = objectMapper.writeValueAsString(jsonNodeData.get("Segments"));
         Segment[] asArray = objectMapper.readValue(segmentString, Segment[].class);
-        return new ArrayList<>(Arrays.asList(asArray));
+        //return new ArrayList<>(Arrays.asList(asArray));
+        return Arrays.stream(asArray).collect(Collectors.toList());
     }
 
 //    @Override

@@ -53,9 +53,10 @@ public class SearchSessionService {
 //
 //    private List<Parser> parsers;
 //
-//public T getParser(Class<T extends Parser> parserClass) {
+//public Parser getParser(Class<T extends Parser> parserClass) {
 //    parsers.stream().filter(p -> p instanceof Class<T>).findFirst().orElseThrow()
 //}
+//
 
     public String getSessionKey() throws UnirestException {
 
@@ -87,18 +88,16 @@ public class SearchSessionService {
 
     public void dataFromFile() throws IOException, ParseException {
 
-        //clearDatabaseTables();
+        clearDatabaseTables();
 
         String content = new String(Files.readAllBytes(Paths.get("a.json")));
 
         com.fasterxml.jackson.databind.JsonNode jsonNode = objectMapper.readTree(content);
 
-
-        // todo parsers wtf
         Parser<Carrier> carrierParser = new CarrierParser();
         carrierService.addCarriersFromList(carrierParser.parse(jsonNode));
         Parser<Place> placeParser = new PlaceParser();
-        placeService.addPlacesFromList(placeParser.parse(jsonNode));
+        placeService.addPlacesFromList(placeParser.parse(jsonNode),16216L, 13554L);
         Parser<Segment> segmentParser = new SegmentParser();
         segmentService.addSegmentsFromList(segmentParser.parse(jsonNode), 16216L, 13554L);
 
@@ -118,7 +117,7 @@ public class SearchSessionService {
         Parser<Carrier> carrierParser = new CarrierParser();
         carrierService.addCarriersFromList(carrierParser.parse(jsonNode));
         Parser<Place> placeParser = new PlaceParser();
-        placeService.addPlacesFromList(placeParser.parse(jsonNode));
+        //placeService.addPlacesFromList(placeParser.parse(jsonNode));
         Parser<Segment> segmentParser = new SegmentParser();
         //segmentService.addSegmentsFromList(segmentParser.parse(jsonNode));
         flightService.createFlights();
