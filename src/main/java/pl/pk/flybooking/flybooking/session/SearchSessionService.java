@@ -149,12 +149,12 @@ public class SearchSessionService {
         Parser<Carrier> carrierParser = new CarrierParser();
         carrierService.addCarriersFromList(carrierParser.parse(jsonNode));
 
-        Set<String> placeCodes = getAirportIds("SFOA", "LOND");
+        Set<String> placeCodes = getAirportIds(originPlaceId, destinationPlaceId);
 
         Parser<Place> placeParser = new PlaceParser();
         placeService.addPlacesFromList(placeParser.parse(jsonNode), placeCodes);
 
-        Set<Long> placesIds = getPlacesIds("SFOA", "LOND");
+        Set<Long> placesIds = getPlacesIds(originPlaceId, destinationPlaceId);
 
         Parser<Segment> segmentParser = new SegmentParser();
         segmentService.addSegmentsFromList(segmentParser.parse(jsonNode), placesIds);
