@@ -11,7 +11,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pl.pk.flybooking.flybooking.authentication.service.AuthService;
 import pl.pk.flybooking.flybooking.confirmation.model.ConfirmationToken;
 import pl.pk.flybooking.flybooking.confirmation.repository.ConfirmationTokenRepository;
-import pl.pk.flybooking.flybooking.exception.BadRequestException;
+import pl.pk.flybooking.flybooking.exception.GenericValidationException;
 import pl.pk.flybooking.flybooking.payload.ApiResponse;
 import pl.pk.flybooking.flybooking.payload.JwtAuthenticationResponse;
 import pl.pk.flybooking.flybooking.payload.LoginRequest;
@@ -50,11 +50,11 @@ public class AuthController {
     @GetMapping("/confirm-account")
     public ResponseEntity<ApiResponse> confirmUserAccount(@RequestParam String token) {
         ConfirmationToken confirmationToken = confirmationTokenRepository.findByToken(token)
-                .orElseThrow(() -> new BadRequestException("The link is invalid or broken!"));
+                .orElseThrow(() -> new GenericValidationException("invalidLink"));
 
         String username = confirmationToken.getUser().getUsername();
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found" + username));
+                .orElseThrow(() -> new GenericValidationException("userNotFound", username));
 
         user.setEnabled(true);
         userRepository.save(user);
@@ -68,7 +68,7 @@ public class AuthController {
     @PostMapping("/forgot-password")
     public ResponseEntity<ApiResponse> forgotUserPassword(@JsonView(User.UserViews.ForgotPassword.class) @RequestBody User user) {
         User existingUser = userRepository.findByUsernameOrEmail(user.getUsername(), user.getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found" + user.getUsername()));
+                .orElseThrow(() -> new GenericValidationException("userNotFound", user.getUsername()));
 
         return ResponseEntity.ok(authService.forgotUserPassword(existingUser));
     }
@@ -76,9 +76,9 @@ public class AuthController {
     @GetMapping("/confirm-reset")
     public ResponseEntity<ApiResponse> validateResetToken(@RequestParam String token) {
         ConfirmationToken confirmationToken = confirmationTokenRepository.findByToken(token)
-                .orElseThrow(() -> new BadRequestException("The link is invalid or broken!"));
+                .orElseThrow(() -> new GenericValidationException("invalidLink"));
         User user = userRepository.findById(confirmationToken.getUser().getId())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found" + confirmationToken.getUser().getUsername()));
+                .orElseThrow(() -> new GenericValidationException("userNotFound", confirmationToken.getUser().getUsername()));
         return ResponseEntity.ok(new ApiResponse(true, "Verification user finished successully"));
     }
 

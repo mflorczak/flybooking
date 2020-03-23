@@ -1,8 +1,6 @@
 package pl.pk.flybooking.flybooking.authentication.service;
 
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,7 +12,7 @@ import org.springframework.stereotype.Service;
 import pl.pk.flybooking.flybooking.confirmation.model.ConfirmationToken;
 import pl.pk.flybooking.flybooking.confirmation.repository.ConfirmationTokenRepository;
 import pl.pk.flybooking.flybooking.email.EmailSenderService;
-import pl.pk.flybooking.flybooking.exception.AppException;
+import pl.pk.flybooking.flybooking.exception.GenericValidationException;
 import pl.pk.flybooking.flybooking.payload.ApiResponse;
 import pl.pk.flybooking.flybooking.payload.JwtAuthenticationResponse;
 import pl.pk.flybooking.flybooking.payload.LoginRequest;
@@ -45,7 +43,7 @@ public class AuthService {
         user.setPassword(encodedPassword);
 
         Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
-                .orElseThrow(() -> new AppException("User Role not set."));
+                .orElseThrow(() -> new GenericValidationException("userRoleNotSet", RoleName.ROLE_USER.toString()));
 
         user.setRoles(Collections.singleton(userRole));
         user.setEnabled(false);
