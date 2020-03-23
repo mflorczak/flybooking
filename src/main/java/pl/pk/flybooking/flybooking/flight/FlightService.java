@@ -6,6 +6,7 @@ import pl.pk.flybooking.flybooking.carrier.Carrier;
 import pl.pk.flybooking.flybooking.carrier.CarrierRepository;
 import pl.pk.flybooking.flybooking.place.Place;
 import pl.pk.flybooking.flybooking.place.PlaceRepository;
+import pl.pk.flybooking.flybooking.placesdb.repository.AirportRepository;
 import pl.pk.flybooking.flybooking.segment.Segment;
 import pl.pk.flybooking.flybooking.segment.SegmentRepository;
 
@@ -22,6 +23,7 @@ public class FlightService {
     private CarrierRepository carrierRepository;
     private PlaceRepository placeRepository;
     private SegmentRepository segmentRepository;
+    private AirportRepository airportRepository;
 
     private Map<Long, Place> getPlacesById(List<Segment> segments) {
         Set<Long> placesIds = new HashSet<>();
@@ -45,8 +47,8 @@ public class FlightService {
     }
 
 
-    public List<Flight> createFlights() throws ParseException {
-        List<Flight> flights = new ArrayList<>();
+    public void createFlights() throws ParseException {
+        //List<Flight> flights = new ArrayList<>();
         List<Segment> segments = segmentRepository.findAll();
         Map<Long, Place> placesByIds = getPlacesById(segments);
         Map<Long, Carrier> carriersById = getCarriersById(segments);
@@ -54,20 +56,17 @@ public class FlightService {
         for (Segment segment : segments) {
             Flight flight = new Flight();
             flight.setId(segment.getId());
-            flight.setOriginStation(placesByIds.get(segment.getOriginStantion()));
-            flight.setDestinationStation(placesByIds.get(segment.getDestinationStation()));
+            flight.setOriginStation(airportRepository.findById(placesByIds.get(segment.getOriginStantion()).getCode()));
+            flight.setDestinationStation(airportRepository.findById(placesByIds.get(segment.getDestinationStation()).getCode()));
             flight.setDepartureDateTime(formatDate(segment.getDepartureDateTime()));
             flight.setArrivalDateTime(formatDate(segment.getArrivalDateTime()));
             flight.setFlightNumber(segment.getFlightNumber());
             flight.setCarrier(carriersById.get(segment.getCarrierId()));
-            flights.add(flight);
+            //flights.add(flight);
+            flightRepository.save(flight);
         }
-        flightRepository.saveAll(flights);
-        return flights;
-    }
-
-    public List<Flight> getFlightsByPlaces(Long destinationStationId, Long originStationId) {
-        return flightRepository.findAllByOriginStationAndDestinationStation(placeRepository.findById(originStationId).get(), placeRepository.findById(destinationStationId).get());
+        //flightRepository.saveAll(flights);
+        //return flights;
     }
 
     private Date formatDate(String date) throws ParseException {
@@ -82,5 +81,9 @@ public class FlightService {
 
     public List <Flight> getAllFlights(){
         return flightRepository.findAll();
+    }
+
+    public List<Flight> getFlightsByPlaceIds(Set<String> ids){
+        return flightRepository.findAllByOriginStationIdInAndDestinationStationIdIn(ids, ids);
     }
 }

@@ -1,5 +1,6 @@
 package pl.pk.flybooking.flybooking.placesdb.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,11 +25,12 @@ public class City {
     @JsonProperty("Airports")
     private List<Airport> airports;
     @ManyToOne
+    @JsonIgnore
     private Country country;
     @JsonProperty("Location")
     private String location;
     @JsonProperty("IataCode")
     private String IATACode;
     @JsonProperty("Name")
-    private String Name;
+    private String name;
 }

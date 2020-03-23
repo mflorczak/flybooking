@@ -1,5 +1,6 @@
 package pl.pk.flybooking.flybooking.placesdb.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -31,5 +32,6 @@ public class Country {
     private List<City> cities;
 
     @ManyToOne
+    @JsonIgnore
     private Continent continent;
 }

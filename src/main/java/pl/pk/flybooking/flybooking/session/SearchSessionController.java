@@ -3,10 +3,7 @@ package pl.pk.flybooking.flybooking.session;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import pl.pk.flybooking.flybooking.flight.Flight;
 import pl.pk.flybooking.flybooking.flight.FlightService;
 import pl.pk.flybooking.flybooking.placesdb.model.PlaceReader;
@@ -26,9 +23,10 @@ public class SearchSessionController {
     private PlaceReader placeReader;
 
     @PostMapping("/live")
-    public ResponseEntity<List<Flight>> createSession() throws UnirestException, IOException, ParseException {
-        searchSessionService.getJsonDataFromSession(searchSessionService.getSessionKey());
-        return ResponseEntity.ok(flightService.getFlightsByPlaces(16216L, 13554L));
+    public ResponseEntity<List<Flight>> createSession(@RequestParam String originPlaceId, @RequestParam String destinationPlaceId,
+                                                      @RequestParam String outboundDate, @RequestParam String inboundDate) throws UnirestException, IOException, ParseException {
+        searchSessionService.getJsonDataFromSession(searchSessionService.getSessionKey(originPlaceId, destinationPlaceId,outboundDate, inboundDate), originPlaceId, destinationPlaceId);
+        return ResponseEntity.ok(flightService.getFlightsByPlaceIds(searchSessionService.getAirportIds(originPlaceId, destinationPlaceId)));
         //return ResponseEntity.ok(flightService.getAllFlights());
     }
 
@@ -36,10 +34,17 @@ public class SearchSessionController {
     public ResponseEntity<List<Flight>> get() throws IOException, ParseException {
         searchSessionService.clearDatabaseTables();
         searchSessionService.dataFromFile();
-        return ResponseEntity.ok(flightService.getFlightsByPlaces(13554L,16216L ));
-        //return ResponseEntity.ok(flightService.getAllFlights());
 
+        System.out.println(searchSessionService.getAirportIds("SFOA", "LOND"));
+        System.out.println(searchSessionService.getPlacesIds("SFOA", "LOND"));
+
+        return ResponseEntity.ok(flightService.getFlightsByPlaceIds(searchSessionService.getAirportIds("SFOA", "LOND")));
+        //return ResponseEntity.ok(flightService.getAllFlights());
     }
+    //String originPlaceId, @RequestParam String destinationPlaceId,
+    //                                @RequestParam String outboundDate, @RequestParam String inboundDAte
+
+
 //    @GetMapping("/db")
 //    public void db(){
 //        placeReader

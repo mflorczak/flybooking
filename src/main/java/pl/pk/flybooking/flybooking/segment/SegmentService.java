@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -13,8 +14,8 @@ public class SegmentService {
 
     private SegmentRepository segmentRepository;
 
-    public void addSegmentsFromList(Collection<Segment> segments, Long originPlaceId, Long destinationPlaceId) {
-        segmentRepository.saveAll(filterSegments(segments, originPlaceId, destinationPlaceId));
+    public void addSegmentsFromList(Collection<Segment> segments, Set<Long> placesIds) {
+        segmentRepository.saveAll(filterSegments(segments, placesIds));
     }
 
     public void clearSegmentTable() {
@@ -22,8 +23,8 @@ public class SegmentService {
             segmentRepository.deleteSegmentNative();
     }
 
-    private List<Segment> filterSegments(Collection<Segment> segments, Long originPlaceId, Long destinationPlaceId){
-        return segments.stream().filter(s -> s.getOriginStantion().equals(originPlaceId) &&
-                s.getDestinationStation().equals(destinationPlaceId)).collect(Collectors.toList());
+    private List<Segment> filterSegments(Collection<Segment> segments, Set<Long> placesIds) {
+        return segments.stream().filter(s -> placesIds.contains(s.getOriginStantion()) &&
+                placesIds.contains(s.getDestinationStation()) && s.getDirectionality().equals("Outbound")).collect(Collectors.toList());
     }
 }

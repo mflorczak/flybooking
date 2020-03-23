@@ -13,7 +13,7 @@ import java.util.Set;
 public interface PlaceRepository extends JpaRepository<Place, Long> {
 
     Set<Place> findAllByIdIn(Set<Long> ids);
-
+    Set<Place> findAllByCodeIn(Set<String> codes);
     @Modifying
     @Query(value = "DELETE FROM Place", nativeQuery = true)
     void deletePlacesNative();

@@ -17,7 +17,7 @@ public class FlightController {
 
     @GetMapping
     ResponseEntity<List<Flight>> getMatchingFlights() throws ParseException {
-        return ResponseEntity.ok(flightService.getFlightsByPlaces(16216L, 13554L));
+        return null;
     }
 
 

@@ -4,9 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import pl.pk.flybooking.flybooking.carrier.Carrier;
-import pl.pk.flybooking.flybooking.place.Place;
+import pl.pk.flybooking.flybooking.placesdb.model.Airport;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import java.util.Date;
 
 @Entity
@@ -18,9 +20,9 @@ public class Flight {
     //@GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @OneToOne
-    private Place originStation;
+    private Airport originStation;
     @OneToOne
-    private Place destinationStation;
+    private Airport destinationStation;
 
     private Date departureDateTime;
     private Date arrivalDateTime;
