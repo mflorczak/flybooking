@@ -55,6 +55,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
     }
 
+    private static final String[] AUTH_WHITELIST = {
+
+            // -- swagger ui
+            "/swagger-resources/**",
+            "/swagger-ui.html",
+            "/v2/api-docs",
+            "/webjars/**",
+    };
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
@@ -68,6 +77,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
+                .authorizeRequests()
+                .antMatchers(AUTH_WHITELIST)
+                .permitAll()
+                .antMatchers("/**/*")
+                .denyAll().and()
                 .authorizeRequests()
                 .antMatchers("/",
                         "/favicon.ico",
