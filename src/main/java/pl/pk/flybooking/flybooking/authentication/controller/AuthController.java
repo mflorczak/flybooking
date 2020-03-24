@@ -79,7 +79,7 @@ public class AuthController {
                 .orElseThrow(() -> new GenericValidationException("invalidLink"));
         User user = userRepository.findById(confirmationToken.getUser().getId())
                 .orElseThrow(() -> new GenericValidationException("userNotFound", confirmationToken.getUser().getUsername()));
-        return ResponseEntity.ok(new ApiResponse(true, "Verification user finished successully"));
+        return ResponseEntity.ok(new ApiResponse(true, "Verification user finished successfully"));
     }
 
     @PostMapping("/reset-password")
