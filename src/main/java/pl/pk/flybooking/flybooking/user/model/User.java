@@ -24,6 +24,8 @@ public class User extends DateAudit {
 
     public interface UserViews {
         interface SignUp {}
+        interface ForgotPassword {}
+        interface ResetPassword {}
     }
 
     @Id
@@ -39,17 +41,17 @@ public class User extends DateAudit {
     private String surname;
 
     @NotBlank
-    @JsonView(UserViews.SignUp.class)
+    @JsonView({UserViews.SignUp.class, UserViews.ForgotPassword.class})
     private String username;
 
     @NotBlank
-    @JsonView(UserViews.SignUp.class)
+    @JsonView({UserViews.SignUp.class, UserViews.ResetPassword.class})
     private String password;
 
     @NaturalId
     @NotBlank
     @Email
-    @JsonView(UserViews.SignUp.class)
+    @JsonView({UserViews.SignUp.class, UserViews.ResetPassword.class})
     private String email;
 
     private Boolean enabled;

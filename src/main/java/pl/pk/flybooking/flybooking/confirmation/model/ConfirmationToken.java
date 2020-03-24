@@ -22,7 +22,7 @@ public class ConfirmationToken extends DateAudit {
 
     private String token;
 
-    @OneToOne(targetEntity = User.class)
+    @OneToOne
     @JoinColumn(nullable = false, name = "user_id")
     private User user;
 
