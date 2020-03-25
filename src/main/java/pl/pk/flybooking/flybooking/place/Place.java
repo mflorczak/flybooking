@@ -13,8 +13,6 @@ import javax.persistence.Id;
 @NoArgsConstructor
 @Data
 public class Place {
-    @JsonProperty("ParentId")
-    private Long parentId;
     @Id
     @JsonProperty("Id")
     private Long id;

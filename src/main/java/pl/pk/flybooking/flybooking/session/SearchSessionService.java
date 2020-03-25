@@ -10,23 +10,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 import pl.pk.flybooking.flybooking.carrier.Carrier;
 import pl.pk.flybooking.flybooking.carrier.CarrierParser;
-import pl.pk.flybooking.flybooking.carrier.CarrierService;
+import pl.pk.flybooking.flybooking.flight.Flight;
 import pl.pk.flybooking.flybooking.flight.FlightService;
 import pl.pk.flybooking.flybooking.parser.Parser;
 import pl.pk.flybooking.flybooking.place.Place;
 import pl.pk.flybooking.flybooking.place.PlaceParser;
-import pl.pk.flybooking.flybooking.place.PlaceService;
 import pl.pk.flybooking.flybooking.placesdb.model.Airport;
 import pl.pk.flybooking.flybooking.placesdb.repository.AirportRepository;
 import pl.pk.flybooking.flybooking.placesdb.repository.CityRepository;
 import pl.pk.flybooking.flybooking.segment.Segment;
 import pl.pk.flybooking.flybooking.segment.SegmentParser;
-import pl.pk.flybooking.flybooking.segment.SegmentService;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.ParseException;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -53,23 +52,15 @@ public class SearchSessionService {
 
     final ObjectMapper objectMapper = new ObjectMapper();
 
-    private CarrierService carrierService;
-    private PlaceService placeService;
-    private SegmentService segmentService;
     private FlightService flightService;
     private CityRepository cityRepository;
     private AirportRepository airportRepository;
-
-    //    private List<Parser> parsers;
+//    private List<Parser> parsers;
 //
 //public Parser getParser(Class<T extends Parser> parserClass) {
 //    parsers.stream().filter(p -> p instanceof Class<T>).findFirst().orElseThrow()
 //}
 //
-//    private String formatCityName(String placeId) {
-//        return cityRepository.findByName(placeId).getId() + "-sky";
-//    }
-
 
     public String getSessionKey(String originPlaceId, @RequestParam String destinationPlaceId,
                                 @RequestParam String outboundDate, @RequestParam String inboundDAte) throws UnirestException {
@@ -83,10 +74,8 @@ public class SearchSessionService {
                 .field(LOCALE, "en-US")
                 .field(ORIGIN_PLACE, originPlaceId + "-sky")
                 .field(DESTINATION_PLACE, destinationPlaceId + "-sky")
-                //.field(OUTBOUND_DATE, "2020-03-19")
                 .field(OUTBOUND_DATE, outboundDate)
                 .field(ADULTS, 1)
-                //.field(INBOUND_DATE, "2020-03-31")
                 .field(INBOUND_DATE, inboundDAte)
                 .asJson();
 
@@ -95,49 +84,37 @@ public class SearchSessionService {
         return getLocationStringFromURL(locationURL);
     }
 
-    public void clearDatabaseTables() {
-        flightService.clearFlightTable();
-        segmentService.clearSegmentTable();
-        placeService.clearPlaceTable();
-        carrierService.clearCarrierTable();
-    }
-
-    public Set<String> getAirportIds(String originPlaceId, String destinationPlaceId) {
+    Set<String> getAirportCodes(String originPlaceId, String destinationPlaceId) {
         Set<Airport> originAirports = airportRepository.findAllByCity_Id(originPlaceId);
         Set<Airport> destinationAirports = airportRepository.findAllByCity_Id(destinationPlaceId);
-        return Stream.concat(originAirports.stream(), destinationAirports.stream()).map(Airport::getId).collect(Collectors.toSet());
+        return Stream.concat(originAirports.stream().map(Airport::getId),
+                destinationAirports.stream().map(Airport::getId)).collect(Collectors.toSet());
     }
 
-    public Set<Long> getPlacesIds(String originPlaceId, String destinationPlaceId) {
-        return placeService.getIdsByCode(getAirportIds(originPlaceId, destinationPlaceId));
+    List<Flight> filterFlightsByAirportCodes(List<Flight> flights, Set<String> airportCodes) {
+        return flights.stream().filter(f -> (
+                airportCodes.contains(f.getOriginStation().getId()) &&
+                        airportCodes.contains(f.getDestinationStation().getId()) ||
+                        airportCodes.contains(f.getDestinationStation().getId()) &&
+                                airportCodes.contains(f.getOriginStation().getId()))
+        ).collect(Collectors.toList());
     }
 
-    public void dataFromFile() throws IOException, ParseException {
+    public List<Flight> fromFile() throws IOException {
 
-        clearDatabaseTables();
         String content = new String(Files.readAllBytes(Paths.get("a.json")));
         com.fasterxml.jackson.databind.JsonNode jsonNode = objectMapper.readTree(content);
 
-        Parser<Carrier> carrierParser = new CarrierParser();
-        carrierService.addCarriersFromList(carrierParser.parse(jsonNode));
-
-        Set<String> placeCodes = getAirportIds("SFOA", "LOND");
-
         Parser<Place> placeParser = new PlaceParser();
-        placeService.addPlacesFromList(placeParser.parse(jsonNode), placeCodes);
-
-        Set<Long> placesIds = getPlacesIds("SFOA", "LOND");
-
+        Parser<Carrier> carrierParser = new CarrierParser();
         Parser<Segment> segmentParser = new SegmentParser();
-        segmentService.addSegmentsFromList(segmentParser.parse(jsonNode), placesIds);
 
-        flightService.createFlights();
+        List<Flight> flights = flightService.createFlights(carrierParser.parse(jsonNode), placeParser.parse(jsonNode), segmentParser.parse(jsonNode));
+        return filterFlightsByAirportCodes(flights, getAirportCodes("SFOA", "LOND"));
     }
 
     //public void getJsonDataFromSession(String sessionKey) throws UnirestException, IOException {
-    public void getJsonDataFromSession(String sessionKey, String originPlaceId, String destinationPlaceId) throws UnirestException, IOException, ParseException {
-
-        clearDatabaseTables();
+    public List<Flight> getResults(String sessionKey, String originPlaceId, String destinationPlaceId) throws UnirestException, IOException, ParseException {
 
         HttpResponse<JsonNode> response = Unirest.get("https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/pricing/uk2/v1.0/" + sessionKey + "?pageIndex=0&pageSize=10")
                 .header("x-rapidapi-host", "skyscanner-skyscanner-flight-search-v1.p.rapidapi.com")
@@ -145,21 +122,12 @@ public class SearchSessionService {
                 .asJson();
 
         com.fasterxml.jackson.databind.JsonNode jsonNode = objectMapper.readTree(response.getBody().toString());
-
-        Parser<Carrier> carrierParser = new CarrierParser();
-        carrierService.addCarriersFromList(carrierParser.parse(jsonNode));
-
-        Set<String> placeCodes = getAirportIds(originPlaceId, destinationPlaceId);
-
         Parser<Place> placeParser = new PlaceParser();
-        placeService.addPlacesFromList(placeParser.parse(jsonNode), placeCodes);
-
-        Set<Long> placesIds = getPlacesIds(originPlaceId, destinationPlaceId);
-
+        Parser<Carrier> carrierParser = new CarrierParser();
         Parser<Segment> segmentParser = new SegmentParser();
-        segmentService.addSegmentsFromList(segmentParser.parse(jsonNode), placesIds);
 
-        flightService.createFlights();
+        List<Flight> flights = flightService.createFlights(carrierParser.parse(jsonNode), placeParser.parse(jsonNode), segmentParser.parse(jsonNode));
+        return filterFlightsByAirportCodes(flights, getAirportCodes(originPlaceId, destinationPlaceId));
     }
 
 

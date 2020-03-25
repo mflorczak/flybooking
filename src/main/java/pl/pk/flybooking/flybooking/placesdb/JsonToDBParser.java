@@ -1,8 +1,12 @@
-package pl.pk.flybooking.flybooking.placesdb.model;
+package pl.pk.flybooking.flybooking.placesdb;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import pl.pk.flybooking.flybooking.placesdb.model.Airport;
+import pl.pk.flybooking.flybooking.placesdb.model.City;
+import pl.pk.flybooking.flybooking.placesdb.model.Continent;
+import pl.pk.flybooking.flybooking.placesdb.model.Country;
 import pl.pk.flybooking.flybooking.placesdb.repository.AirportRepository;
 import pl.pk.flybooking.flybooking.placesdb.repository.CityRepository;
 import pl.pk.flybooking.flybooking.placesdb.repository.ContinentRepository;
@@ -14,14 +18,13 @@ import java.nio.file.Paths;
 
 @Service
 @AllArgsConstructor
-public class PlaceReader {
+public class JsonToDBParser {
     final ObjectMapper objectMapper = new ObjectMapper();
 
     private ContinentRepository continentRepository;
     private CountryRepository countryRepository;
     private CityRepository cityRepository;
     private AirportRepository airportRepository;
-
 
     public void populateDB() throws IOException {
 

@@ -1,8 +1,7 @@
 package pl.pk.flybooking.flybooking.flight;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.*;
 import pl.pk.flybooking.flybooking.carrier.Carrier;
 import pl.pk.flybooking.flybooking.placesdb.model.Airport;
 
@@ -16,18 +15,30 @@ import java.util.Date;
 @NoArgsConstructor
 @Data
 public class Flight {
+
+    public interface JsonViews{
+        interface get extends Airport.JsonViews.get{}
+    }
+
+
     @Id
-    //@GeneratedValue(strategy = GenerationType.AUTO)
+    @JsonView(JsonViews.get.class)
     private Long id;
     @OneToOne
+    @JsonView(JsonViews.get.class)
+    private Carrier carrier;
+    @OneToOne
+    @JsonView(JsonViews.get.class)
     private Airport originStation;
     @OneToOne
+    @JsonView(JsonViews.get.class)
     private Airport destinationStation;
-
+    @JsonView(JsonViews.get.class)
     private Date departureDateTime;
+    @JsonView(JsonViews.get.class)
     private Date arrivalDateTime;
-
+    @JsonView(JsonViews.get.class)
     private String flightNumber;
-    @OneToOne
-    private Carrier carrier;
+    @JsonView(JsonViews.get.class)
+    private String directionality;
 }

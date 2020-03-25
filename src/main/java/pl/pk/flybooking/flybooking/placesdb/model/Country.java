@@ -2,9 +2,8 @@ package pl.pk.flybooking.flybooking.placesdb.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.*;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -13,18 +12,30 @@ import javax.persistence.OneToMany;
 import java.util.List;
 
 @Entity
-@Data
+@EqualsAndHashCode
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString(exclude = {"cities", "continent"})
+@Getter
+@Setter
 public class Country {
+
+    public interface JsonViews {
+        interface get {
+        }
+    }
+
     @Id
     @JsonProperty("Id")
+    @JsonView(JsonViews.get.class)
     private String id;
 
     @JsonProperty("Name")
+    @JsonView(JsonViews.get.class)
     private String name;
 
     @JsonProperty("CurrencyId")
+    @JsonView(JsonViews.get.class)
     private String currencyId;
 
     @JsonProperty("Cities")
