@@ -26,41 +26,36 @@ public class FlightService {
 
     private AirportRepository airportRepository;
 
-    //    private Map<Long, Place> getPlacesById(List<Segment> segments) {
-//        Set<Long> placesIds = new HashSet<>();
-//        segments.forEach(s -> {
-//            placesIds.add(s.getOriginStantion());
-//            placesIds.add(s.getDestinationStation());
-//        });
-//        Set<Place> places = placeRepository.findAllByIdIn(placesIds);
-//        Map<Long, Place> placesByIds = new HashMap<>();
-//        places.forEach(p -> placesByIds.put(p.getId(), p));
-//        return placesByIds;
-//    }
-//
-//    private Map<Long, Carrier> getCarriersById(List<Segment> segments){
-//        Set<Long> carrierIds = new HashSet<>();
-//        segments.forEach(s -> carrierIds.add(s.getCarrierId()));
-//        Set<Carrier> carriers = carrierRepository.findAllByIdIn(carrierIds);
-//        Map<Long, Carrier> carriersById = new HashMap<>();
-//        carriers.forEach(c -> carriersById.put(c.getId(), c));
-//        return carriersById;
-//    }
-
     private Map<Long, Airport> airportsByPlacesIds(Map<Long, Place> places) {
         Map<Long, String> codesByIds = places.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getCode()));
         List<Airport> usedAirports = airportRepository.findAllByIdIn(new ArrayList<>(codesByIds.values()));
         Map<String, Airport> airportsByCodes = Maps.uniqueIndex(usedAirports, Airport::getId);
+
 
         Map<Long, String> usedCodes = codesByIds.entrySet().stream().filter(entry -> airportsByCodes.containsKey(entry.getValue()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         return usedCodes.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> airportsByCodes.get(entry.getValue())));
     }
 
+
+    private Map<Long, Airport> getAirportsByPlacesIds(List<Place> places) {
+        Map<String, Long> filteredAirportCodesByPlaceIds = places.stream()
+                .filter(p -> p.getType().equals("Airport"))
+                .collect(Collectors.toMap(Place::getCode, Place::getId));
+
+        Map<String, Airport> airportsByCodes = Maps.uniqueIndex(airportRepository.findAllByPlacesIn(places.stream()
+                .map(Place::getCode)
+                .collect(Collectors.toList())), Airport::getId);
+
+        return filteredAirportCodesByPlaceIds.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getValue, entry -> airportsByCodes.get(entry.getKey())));
+    }
+
     @SneakyThrows
     public List<Flight> createFlights(List<Carrier> carriers, List<Place> places, List<Segment> segments) {
         Map<Long, Carrier> carriersByIds = Maps.uniqueIndex(carriers, Carrier::getId);
-        Map<Long, Airport> airportsByIds = airportsByPlacesIds(Maps.uniqueIndex(places, Place::getId));
+        Map<Long, Airport> airportsByIds = getAirportsByPlacesIds(places);
+
         List<Flight> flights = new ArrayList<>();
 
         segments.forEach(s -> {

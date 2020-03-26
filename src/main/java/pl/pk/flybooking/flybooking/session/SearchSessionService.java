@@ -28,7 +28,6 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @AllArgsConstructor
@@ -85,10 +84,7 @@ public class SearchSessionService {
     }
 
     Set<String> getAirportCodes(String originPlaceId, String destinationPlaceId) {
-        Set<Airport> originAirports = airportRepository.findAllByCity_Id(originPlaceId);
-        Set<Airport> destinationAirports = airportRepository.findAllByCity_Id(destinationPlaceId);
-        return Stream.concat(originAirports.stream().map(Airport::getId),
-                destinationAirports.stream().map(Airport::getId)).collect(Collectors.toSet());
+        return airportRepository.findAirportsByOriginAndDestination(originPlaceId, destinationPlaceId).stream().map(Airport::getId).collect(Collectors.toSet());
     }
 
     List<Flight> filterFlightsByAirportCodes(List<Flight> flights, Set<String> airportCodes) {
@@ -113,7 +109,6 @@ public class SearchSessionService {
         return filterFlightsByAirportCodes(flights, getAirportCodes("SFOA", "LOND"));
     }
 
-    //public void getJsonDataFromSession(String sessionKey) throws UnirestException, IOException {
     public List<Flight> getResults(String sessionKey, String originPlaceId, String destinationPlaceId) throws UnirestException, IOException, ParseException {
 
         HttpResponse<JsonNode> response = Unirest.get("https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/pricing/uk2/v1.0/" + sessionKey + "?pageIndex=0&pageSize=10")

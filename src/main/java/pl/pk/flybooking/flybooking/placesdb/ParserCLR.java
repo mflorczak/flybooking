@@ -14,6 +14,5 @@ public class ParserCLR implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-            //jsonToDBParser.populateDB();
     }
 }
