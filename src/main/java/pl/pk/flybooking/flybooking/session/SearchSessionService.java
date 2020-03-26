@@ -9,17 +9,14 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 import pl.pk.flybooking.flybooking.carrier.Carrier;
-import pl.pk.flybooking.flybooking.carrier.CarrierParser;
+import pl.pk.flybooking.flybooking.dbpopulator.model.Airport;
+import pl.pk.flybooking.flybooking.dbpopulator.repository.AirportRepository;
+import pl.pk.flybooking.flybooking.dbpopulator.repository.CityRepository;
 import pl.pk.flybooking.flybooking.flight.Flight;
 import pl.pk.flybooking.flybooking.flight.FlightService;
 import pl.pk.flybooking.flybooking.parser.Parser;
 import pl.pk.flybooking.flybooking.place.Place;
-import pl.pk.flybooking.flybooking.place.PlaceParser;
-import pl.pk.flybooking.flybooking.placesdb.model.Airport;
-import pl.pk.flybooking.flybooking.placesdb.repository.AirportRepository;
-import pl.pk.flybooking.flybooking.placesdb.repository.CityRepository;
 import pl.pk.flybooking.flybooking.segment.Segment;
-import pl.pk.flybooking.flybooking.segment.SegmentParser;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,7 +28,7 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class SearchSessionService {
+public class SearchSessionService<T> {
 
     private final static String UNIREST_POST_URL = "https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/pricing/v1.0";
     private final static String X_RAPIDAPI_HOST = "skyscanner-skyscanner-flight-search-v1.p.rapidapi.com";
@@ -49,17 +46,15 @@ public class SearchSessionService {
     private final static String X_RAPIDAPI_KEY_HEADER = "X-RapidAPI-Key";
     private final static String CONTENT_TYPE_HEADER = "Content-Type";
 
-    final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private FlightService flightService;
     private CityRepository cityRepository;
     private AirportRepository airportRepository;
-//    private List<Parser> parsers;
-//
-//public Parser getParser(Class<T extends Parser> parserClass) {
-//    parsers.stream().filter(p -> p instanceof Class<T>).findFirst().orElseThrow()
-//}
-//
+
+    private Parser<Place> placeParser;
+    private Parser<Carrier> carrierParser;
+    private Parser<Segment> segmentParser;
 
     public String getSessionKey(String originPlaceId, @RequestParam String destinationPlaceId,
                                 @RequestParam String outboundDate, @RequestParam String inboundDAte) throws UnirestException {
@@ -101,10 +96,6 @@ public class SearchSessionService {
         String content = new String(Files.readAllBytes(Paths.get("a.json")));
         com.fasterxml.jackson.databind.JsonNode jsonNode = objectMapper.readTree(content);
 
-        Parser<Place> placeParser = new PlaceParser();
-        Parser<Carrier> carrierParser = new CarrierParser();
-        Parser<Segment> segmentParser = new SegmentParser();
-
         List<Flight> flights = flightService.createFlights(carrierParser.parse(jsonNode), placeParser.parse(jsonNode), segmentParser.parse(jsonNode));
         return filterFlightsByAirportCodes(flights, getAirportCodes("SFOA", "LOND"));
     }
@@ -117,14 +108,10 @@ public class SearchSessionService {
                 .asJson();
 
         com.fasterxml.jackson.databind.JsonNode jsonNode = objectMapper.readTree(response.getBody().toString());
-        Parser<Place> placeParser = new PlaceParser();
-        Parser<Carrier> carrierParser = new CarrierParser();
-        Parser<Segment> segmentParser = new SegmentParser();
 
         List<Flight> flights = flightService.createFlights(carrierParser.parse(jsonNode), placeParser.parse(jsonNode), segmentParser.parse(jsonNode));
         return filterFlightsByAirportCodes(flights, getAirportCodes(originPlaceId, destinationPlaceId));
     }
-
 
     private static String getLocationStringFromURL(String locationURL) {
         return locationURL.substring(locationURL.lastIndexOf("/") + 1);

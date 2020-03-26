@@ -1,4 +1,4 @@
-package pl.pk.flybooking.flybooking.placesdb.model;
+package pl.pk.flybooking.flybooking.dbpopulator.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;

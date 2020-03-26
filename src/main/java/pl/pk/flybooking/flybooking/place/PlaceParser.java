@@ -1,11 +1,13 @@
 package pl.pk.flybooking.flybooking.place;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.springframework.stereotype.Component;
 import pl.pk.flybooking.flybooking.parser.Parser;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class PlaceParser implements Parser<Place> {
     @Override
     public List<Place> parse(JsonNode jsonNode) {

@@ -1,16 +1,16 @@
-package pl.pk.flybooking.flybooking.placesdb;
+package pl.pk.flybooking.flybooking.dbpopulator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import pl.pk.flybooking.flybooking.placesdb.model.Airport;
-import pl.pk.flybooking.flybooking.placesdb.model.City;
-import pl.pk.flybooking.flybooking.placesdb.model.Continent;
-import pl.pk.flybooking.flybooking.placesdb.model.Country;
-import pl.pk.flybooking.flybooking.placesdb.repository.AirportRepository;
-import pl.pk.flybooking.flybooking.placesdb.repository.CityRepository;
-import pl.pk.flybooking.flybooking.placesdb.repository.ContinentRepository;
-import pl.pk.flybooking.flybooking.placesdb.repository.CountryRepository;
+import pl.pk.flybooking.flybooking.dbpopulator.model.Airport;
+import pl.pk.flybooking.flybooking.dbpopulator.model.City;
+import pl.pk.flybooking.flybooking.dbpopulator.model.Continent;
+import pl.pk.flybooking.flybooking.dbpopulator.model.Country;
+import pl.pk.flybooking.flybooking.dbpopulator.repository.AirportRepository;
+import pl.pk.flybooking.flybooking.dbpopulator.repository.CityRepository;
+import pl.pk.flybooking.flybooking.dbpopulator.repository.ContinentRepository;
+import pl.pk.flybooking.flybooking.dbpopulator.repository.CountryRepository;
 
 import java.io.IOException;
 import java.nio.file.Files;

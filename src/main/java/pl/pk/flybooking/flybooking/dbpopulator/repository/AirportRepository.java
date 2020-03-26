@@ -1,10 +1,10 @@
-package pl.pk.flybooking.flybooking.placesdb.repository;
+package pl.pk.flybooking.flybooking.dbpopulator.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import pl.pk.flybooking.flybooking.placesdb.model.Airport;
+import pl.pk.flybooking.flybooking.dbpopulator.model.Airport;
 
 import java.util.List;
 import java.util.Set;

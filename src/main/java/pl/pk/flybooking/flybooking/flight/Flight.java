@@ -3,7 +3,7 @@ package pl.pk.flybooking.flybooking.flight;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.*;
 import pl.pk.flybooking.flybooking.carrier.Carrier;
-import pl.pk.flybooking.flybooking.placesdb.model.Airport;
+import pl.pk.flybooking.flybooking.dbpopulator.model.Airport;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;

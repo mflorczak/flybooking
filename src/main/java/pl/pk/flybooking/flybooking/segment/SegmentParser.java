@@ -1,11 +1,13 @@
 package pl.pk.flybooking.flybooking.segment;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.springframework.stereotype.Component;
 import pl.pk.flybooking.flybooking.parser.Parser;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class SegmentParser implements Parser<Segment> {
 
     @Override

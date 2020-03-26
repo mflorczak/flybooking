@@ -1,4 +1,4 @@
-package pl.pk.flybooking.flybooking.placesdb;
+package pl.pk.flybooking.flybooking.dbpopulator;
 
 import lombok.AllArgsConstructor;
 import org.springframework.boot.CommandLineRunner;

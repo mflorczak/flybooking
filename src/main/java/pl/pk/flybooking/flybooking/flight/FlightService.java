@@ -6,8 +6,8 @@ import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import pl.pk.flybooking.flybooking.carrier.Carrier;
 import pl.pk.flybooking.flybooking.place.Place;
-import pl.pk.flybooking.flybooking.placesdb.model.Airport;
-import pl.pk.flybooking.flybooking.placesdb.repository.AirportRepository;
+import pl.pk.flybooking.flybooking.dbpopulator.model.Airport;
+import pl.pk.flybooking.flybooking.dbpopulator.repository.AirportRepository;
 import pl.pk.flybooking.flybooking.segment.Segment;
 
 import java.text.DateFormat;
@@ -23,8 +23,9 @@ import java.util.stream.Collectors;
 public class FlightService {
 
     private FlightRepository flightRepository;
-
     private AirportRepository airportRepository;
+
+    private final static String PLACE_TYPE = "Airport";
 
     private Map<Long, Airport> airportsByPlacesIds(Map<Long, Place> places) {
         Map<Long, String> codesByIds = places.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getCode()));
@@ -37,10 +38,9 @@ public class FlightService {
         return usedCodes.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> airportsByCodes.get(entry.getValue())));
     }
 
-
     private Map<Long, Airport> getAirportsByPlacesIds(List<Place> places) {
         Map<String, Long> filteredAirportCodesByPlaceIds = places.stream()
-                .filter(p -> p.getType().equals("Airport"))
+                .filter(p -> p.getType().equals(PLACE_TYPE))
                 .collect(Collectors.toMap(Place::getCode, Place::getId));
 
         Map<String, Airport> airportsByCodes = Maps.uniqueIndex(airportRepository.findAllByPlacesIn(places.stream()

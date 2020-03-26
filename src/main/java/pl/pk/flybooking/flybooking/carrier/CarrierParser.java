@@ -1,10 +1,12 @@
 package pl.pk.flybooking.flybooking.carrier;
 
+import org.springframework.stereotype.Component;
 import pl.pk.flybooking.flybooking.parser.Parser;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class CarrierParser implements Parser<Carrier> {
     @Override
     public List<Carrier> parse(com.fasterxml.jackson.databind.JsonNode jsonNode) {
