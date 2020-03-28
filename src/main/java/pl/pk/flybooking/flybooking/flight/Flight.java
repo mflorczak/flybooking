@@ -20,7 +20,6 @@ public class Flight {
         interface get extends Airport.JsonViews.get{}
     }
 
-
     @Id
     @JsonView(JsonViews.get.class)
     private Long id;

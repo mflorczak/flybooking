@@ -28,8 +28,9 @@ public class SearchSessionController {
 
     @GetMapping("/file")
     @JsonView(Flight.JsonViews.get.class)
-    public ResponseEntity<List<Flight>> get() throws IOException {
-        return ResponseEntity.ok(searchSessionService.fromFile());
+    public ResponseEntity<List<Flight>> get(@RequestParam String originPlaceId, @RequestParam String destinationPlaceId,
+                                            @RequestParam String outboundDate, @RequestParam String inboundDate) throws IOException {
+        return ResponseEntity.ok(searchSessionService.fromFile(originPlaceId, destinationPlaceId));
     }
 
 }
