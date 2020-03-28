@@ -1,78 +1,74 @@
 package pl.pk.flybooking.flybooking.flight;
 
+import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
-import pl.pk.flybooking.flybooking.carrier.CarrierRepository;
+import pl.pk.flybooking.flybooking.carrier.Carrier;
+import pl.pk.flybooking.flybooking.dbpopulator.model.Airport;
+import pl.pk.flybooking.flybooking.dbpopulator.repository.AirportRepository;
 import pl.pk.flybooking.flybooking.place.Place;
-import pl.pk.flybooking.flybooking.place.PlaceRepository;
 import pl.pk.flybooking.flybooking.segment.Segment;
-import pl.pk.flybooking.flybooking.segment.SegmentRepository;
 
+import javax.transaction.Transactional;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
+@Transactional
 public class FlightService {
+    private final static String PLACE_TYPE = "Airport";
+
     private FlightRepository flightRepository;
-    private CarrierRepository carrierRepository;
-    private PlaceRepository placeRepository;
-    private SegmentRepository segmentRepository;
+    private AirportRepository airportRepository;
 
-    private Map<Long, Place> getPlacesById(List<Segment> segments) {
-        Set<Long> placesIds = new HashSet<>();
-        segments.forEach(s -> {
-            placesIds.add(s.getOriginStantion());
-            placesIds.add(s.getDestinationStation());
-        });
+    public List<Flight> createFlights(List<Carrier> carriers, List<Place> places, List<Segment> segments) {
+        Map<Long, Carrier> carriersByIds = Maps.uniqueIndex(carriers, Carrier::getId);
+        Map<Long, Airport> airportsByIds = getAirportsByPlacesIds(places);
 
-        Set<Place> places = placeRepository.findAllByIdIn(placesIds);
-        Map<Long, Place> placesByIds = new HashMap<>();
-        places.forEach(p -> placesByIds.put(p.getId(), p));
-        return placesByIds;
-    }
-
-
-    public List<Flight> createFlights() throws ParseException {
         List<Flight> flights = new ArrayList<>();
-        List<Segment> segments = segmentRepository.findAll();
-        Map<Long, Place> placesByIds = getPlacesById(segments);
 
-        for (Segment segment : segments) {
+        segments.forEach(s -> {
             Flight flight = new Flight();
-            flight.setId(segment.getId());
-            flight.setOriginStation(placesByIds.get(segment.getOriginStantion()));
-            flight.setDestinationStation(placesByIds.get(segment.getDestinationStation()));
-            flight.setDepartureDateTime(formatDate(segment.getDepartureDateTime()));
-            flight.setArrivalDateTime(formatDate(segment.getArrivalDateTime()));
-            flight.setFlightNumber(segment.getFlightNumber());
-            // todo query as above to one map
-            //flight.setCarrier(carrierRepository.findById(segment.getCarrierId()).get());
+            flight.setId(s.getId());
+            flight.setCarrier(carriersByIds.get(s.getCarrierId()));
+            flight.setOriginStation(airportsByIds.get(s.getOriginStantion()));
+            flight.setDestinationStation(airportsByIds.get(s.getDestinationStation()));
+            flight.setArrivalDateTime(formatDate(s.getArrivalDateTime()));
+            flight.setDepartureDateTime(formatDate(s.getDepartureDateTime()));
+            flight.setFlightNumber(s.getFlightNumber());
+            flight.setDirectionality(s.getDirectionality());
             flights.add(flight);
-
-
-        }
-        flightRepository.saveAll(flights);
+        });
         return flights;
     }
 
-    public List<Flight> getFlightsByPlaces(Long destinationStationId, Long originStationId) {
-        return flightRepository.findAllByOriginStationAndDestinationStation(placeRepository.findById(originStationId).get(), placeRepository.findById(destinationStationId).get());
+    public void saveFlights(List<Flight> flights) {
+        flightRepository.saveAll(flights);
     }
 
-    private Date formatDate(String date) throws ParseException {
+    @SneakyThrows
+    private Date formatDate(String date) {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         return dateFormat.parse(date);
     }
 
-    public void clearFlightTable() {
-        if (flightRepository.count() > 0)
-            flightRepository.deleteFlightsNative();
-    }
+    private Map<Long, Airport> getAirportsByPlacesIds(List<Place> places) {
+        Map<String, Long> filteredAirportCodesByPlaceIds = places.stream()
+                .filter(p -> p.getType().equals(PLACE_TYPE))
+                .collect(Collectors.toMap(Place::getCode, Place::getId));
 
-    public List <Flight> getAllFlights(){
-        return flightRepository.findAll();
+        Map<String, Airport> airportsByCodes = Maps.uniqueIndex(airportRepository.findAllByPlacesIn(places.stream()
+                .map(Place::getCode)
+                .collect(Collectors.toList())), Airport::getId);
+
+        return filteredAirportCodesByPlaceIds.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getValue, entry -> airportsByCodes.get(entry.getKey())));
     }
 }

@@ -31,14 +31,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private CustomUserDetailsService customUserDetailsService;
     private JwtAuthenticationEntryPoint unauthorizedHandler;
-    private static final String[] AUTH_WHITELIST = {
-
-            // -- swagger ui
-            "/swagger-resources/**",
-            "/swagger-ui.html",
-            "/v2/api-docs",
-            "/webjars/**",
-    };
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
@@ -85,20 +77,22 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/**/*.jpg",
                         "/**/*.html",
                         "/**/*.css",
-                        "/**/*.js")
+                        "/**/*.js",
+                        "/swagger-resources/**",
+                        "/swagger-ui.html",
+                        "/v2/api-docs",
+                        "/webjars/**")
                 .permitAll()
                 .antMatchers("/api/auth/**")
                 .permitAll()
                 .antMatchers("/api/user/checkUsernameAvailability", "/api/user/checkEmailAvailability")
                 .permitAll()
-                .antMatchers(AUTH_WHITELIST)
-                .permitAll()
                 .antMatchers(HttpMethod.GET, "/api/polls/**", "/api/users/**")
                 .permitAll()
                 .anyRequest()
-
                 .authenticated();
 
+        // Add our custom JWT security filter
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
     }

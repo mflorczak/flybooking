@@ -25,8 +25,8 @@ public class Segment {
     private String journeyMode;
     @JsonProperty("DestinationStation")
     private Long destinationStation;
-    @JsonProperty("OperatingCarrier")
-    private Long OperatingCarrier;
+    //@JsonProperty("OperatingCarrier")
+    //private Long OperatingCarrier;
     @JsonProperty("FlightNumber")
     private String flightNumber;
     @JsonProperty("Duration")

@@ -1,4 +1,4 @@
-package pl.pk.flybooking.flybooking.place;
+package pl.pk.flybooking.flybooking.dbpopulator.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -9,17 +9,18 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 
 @Entity
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-public class Place {
+public class Region {
+
     @Id
     @JsonProperty("Id")
-    private Long id;
-    @JsonProperty("Type")
-    private String type;
-    @JsonProperty("Code")
-    private String code;
+    private String id;
+
     @JsonProperty("Name")
     private String name;
+
+    @JsonProperty("CountryId")
+    private String countryId;
 }
