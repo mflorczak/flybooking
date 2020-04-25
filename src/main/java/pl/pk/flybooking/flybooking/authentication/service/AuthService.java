@@ -1,6 +1,7 @@
 package pl.pk.flybooking.flybooking.authentication.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -39,6 +40,13 @@ public class AuthService {
 
     @Transactional
     public ApiResponse registrationInactiveUser(User user) {
+
+        if (userRepository.existsByUsername(user.getUsername()))
+            throw new GenericValidationException("usernameIsAlreadyTaken", user.getUsername());
+
+        if (userRepository.existsByEmail(user.getEmail()))
+            throw new GenericValidationException("emailAlreadyInUse", user.getEmail());
+
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
 
@@ -56,8 +64,10 @@ public class AuthService {
     }
 
     public ApiResponse forgotUserPassword(User user) {
-        sendMailWithTokenToUser(user, "Complete Password Reset!","To complete the password reset process, please click here: ", "confirm-reset");
-        return new  ApiResponse(true , "Request to reset password received. Check your inbox for the reset link.");
+        User existingUser = userRepository.findByUsernameOrEmail(user.getUsername(), user.getUsername())
+                .orElseThrow(() -> new GenericValidationException("userNotFound", user.getUsername()));
+        sendMailWithTokenToUser(existingUser, "Complete Password Reset!","To complete the password reset process, please click here: ", "confirm-reset");
+        return new ApiResponse(true , "Request to reset password received. Check your inbox for the reset link.");
     }
 
     private void sendMailWithTokenToUser(User user, String subject, String text, String action) {
@@ -88,7 +98,7 @@ public class AuthService {
     @Transactional
     public ApiResponse resetPassword(User user) {
         User tokenUser = userRepository.findByEmail(user.getEmail())
-                .orElseThrow(() -> new UsernameNotFoundException("User email not found: " + user.getEmail()));
+                .orElseThrow(() -> new GenericValidationException("userEmailNotFound", user.getEmail()));
 
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         tokenUser.setPassword(encodedPassword);

@@ -38,12 +38,6 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse> registerUser(@JsonView(User.UserViews.SignUp.class) @Valid @RequestBody User user) {
-        if (userRepository.existsByUsername(user.getUsername()))
-            return ResponseEntity.badRequest().body(new ApiResponse(false, "Username is already taken!"));
-
-        if (userRepository.existsByEmail(user.getEmail()))
-            return ResponseEntity.badRequest().body(new ApiResponse(false, "Email Address already in use!"));
-
         return ResponseEntity.ok(authService.registrationInactiveUser(user));
     }
 
@@ -67,10 +61,7 @@ public class AuthController {
 
     @PostMapping("/forgot-password")
     public ResponseEntity<ApiResponse> forgotUserPassword(@JsonView(User.UserViews.ForgotPassword.class) @RequestBody User user) {
-        User existingUser = userRepository.findByUsernameOrEmail(user.getUsername(), user.getUsername())
-                .orElseThrow(() -> new GenericValidationException("userNotFound", user.getUsername()));
-
-        return ResponseEntity.ok(authService.forgotUserPassword(existingUser));
+        return ResponseEntity.ok(authService.forgotUserPassword(user));
     }
 
     @GetMapping("/confirm-reset")
