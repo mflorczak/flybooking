@@ -3,12 +3,11 @@ package pl.pk.flybooking.flybooking.payload;
 import lombok.Getter;
 import lombok.Setter;
 
+@Getter
 public class JwtAuthenticationResponse {
 
-    @Getter
     @Setter
     private String accessToken;
-    @Getter
     private String tokenType = "Bearer ";
 
     public JwtAuthenticationResponse(String accessToken) {

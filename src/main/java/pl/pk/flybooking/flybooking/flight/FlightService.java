@@ -7,16 +7,14 @@ import org.springframework.stereotype.Service;
 import pl.pk.flybooking.flybooking.carrier.Carrier;
 import pl.pk.flybooking.flybooking.dbpopulator.model.Airport;
 import pl.pk.flybooking.flybooking.dbpopulator.repository.AirportRepository;
+import pl.pk.flybooking.flybooking.exception.GenericValidationException;
 import pl.pk.flybooking.flybooking.place.Place;
 import pl.pk.flybooking.flybooking.segment.Segment;
 
 import javax.transaction.Transactional;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,8 +47,12 @@ public class FlightService {
         return flights;
     }
 
-    public void saveFlights(List<Flight> flights) {
-        flightRepository.saveAll(flights);
+    public Flight saveFlight(Flight flight) {
+        return flightRepository.save(flight);
+    }
+
+    public Optional<Flight> findFlightByFlightNumber(String findByFlightNumber) {
+        return flightRepository.findByFlightNumber(findByFlightNumber);
     }
 
     @SneakyThrows

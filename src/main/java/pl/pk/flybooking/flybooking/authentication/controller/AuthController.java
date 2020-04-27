@@ -82,9 +82,4 @@ public class AuthController {
     public ResponseEntity<ApiResponse> resetUserPassword(@JsonView(User.UserViews.ResetPassword.class) @RequestBody User user, Locale locale) {
         return ResponseEntity.ok(authService.resetPassword(user, locale));
     }
-
-    @GetMapping("/test")
-    public String test(Locale locale) {
-        return messageTranslateService.translatedMessage("dupa", locale);
-    }
 }
