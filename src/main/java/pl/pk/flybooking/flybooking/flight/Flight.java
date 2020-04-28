@@ -1,11 +1,15 @@
 package pl.pk.flybooking.flybooking.flight;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import pl.pk.flybooking.flybooking.carrier.Carrier;
 import pl.pk.flybooking.flybooking.dbpopulator.model.Airport;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import java.util.Date;
 
 @Entity
@@ -17,7 +21,6 @@ public class Flight {
     public interface JsonViews{
         interface get extends Airport.JsonViews.get, Carrier.JsonViews.get{}
     }
-
     @Id
     @JsonView(JsonViews.get.class)
     private Long id;

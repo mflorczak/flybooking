@@ -12,7 +12,6 @@ import pl.pk.flybooking.flybooking.role.model.Role;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,7 +26,7 @@ public class User extends DateAudit {
         interface SignUp {}
         interface ForgotPassword {}
         interface ResetPassword {}
-        interface Booking {}
+        interface Booking extends Flight.JsonViews.get {}
     }
 
     @Id

@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import pl.pk.flybooking.flybooking.carrier.Carrier;
 import pl.pk.flybooking.flybooking.dbpopulator.model.Airport;
 import pl.pk.flybooking.flybooking.dbpopulator.repository.AirportRepository;
-import pl.pk.flybooking.flybooking.exception.GenericValidationException;
 import pl.pk.flybooking.flybooking.place.Place;
 import pl.pk.flybooking.flybooking.segment.Segment;
 
