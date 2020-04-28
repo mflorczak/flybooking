@@ -17,7 +17,7 @@ import java.util.Date;
 public class Flight {
 
     public interface JsonViews{
-        interface get extends Airport.JsonViews.get{}
+        interface get extends Airport.JsonViews.get, Carrier.JsonViews.get{}
     }
 
     @Id
