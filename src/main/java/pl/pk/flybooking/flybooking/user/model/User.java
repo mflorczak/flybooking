@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.NaturalId;
 import pl.pk.flybooking.flybooking.audit.DateAudit;
+import pl.pk.flybooking.flybooking.flight.Flight;
 import pl.pk.flybooking.flybooking.role.model.Role;
 
 import javax.persistence.*;
@@ -26,6 +27,7 @@ public class User extends DateAudit {
         interface SignUp {}
         interface ForgotPassword {}
         interface ResetPassword {}
+        interface Booking {}
     }
 
     @Id
@@ -33,11 +35,11 @@ public class User extends DateAudit {
     private Long id;
 
     @NotBlank
-    @JsonView(UserViews.SignUp.class)
+    @JsonView({UserViews.SignUp.class, UserViews.Booking.class})
     private String name;
 
     @NotBlank
-    @JsonView(UserViews.SignUp.class)
+    @JsonView({UserViews.SignUp.class, UserViews.Booking.class})
     private String surname;
 
     @NotBlank
@@ -56,13 +58,23 @@ public class User extends DateAudit {
 
     private Boolean enabled;
 
-    @ManyToMany
+
+    @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(
             name = "user_roles",
             joinColumns = @JoinColumn(name =" user_id" ),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles = new HashSet<>();
+
+    @JsonView(UserViews.Booking.class)
+    @ManyToMany
+    @JoinTable(
+            name = "user_flights",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "flight_id")
+    )
+    private Set<Flight> flights = new HashSet<>();
 
     public User(@NotBlank String name, @NotBlank String surname, @NotBlank String username, @NotBlank String password, @NotBlank @Email String email) {
         this.name = name;

@@ -43,14 +43,14 @@ public class InternationalizedErrorHandler {
                 .build();
     }
 
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ApiError handleExceptions(HttpServletRequest request, Exception ex, Locale locale) {
-        return new ApiError.Builder().internalError(request)
-                .message(messageSource.getMessage(UNEXPECTED_ERROR, null, locale))
-                .trace(ex.getClass() + "\n" + ex.getStackTrace()[0].toString())
-                .build();
-    }
+//    @ExceptionHandler(Exception.class)
+//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+//    public ApiError handleExceptions(HttpServletRequest request, Exception ex, Locale locale) {
+//        return new ApiError.Builder().internalError(request)
+//                .message(messageSource.getMessage(UNEXPECTED_ERROR, null, locale))
+//                .trace(ex.getClass() + "\n" + ex.getStackTrace()[0].toString())
+//                .build();
+//    }
 
     @ExceptionHandler(GenericValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)

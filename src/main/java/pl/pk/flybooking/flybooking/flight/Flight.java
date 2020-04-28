@@ -5,9 +5,7 @@ import lombok.*;
 import pl.pk.flybooking.flybooking.carrier.Carrier;
 import pl.pk.flybooking.flybooking.dbpopulator.model.Airport;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 import java.util.Date;
 
 @Entity
@@ -40,4 +38,6 @@ public class Flight {
     private String flightNumber;
     @JsonView(JsonViews.get.class)
     private String directionality;
+
+
 }
