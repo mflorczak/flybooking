@@ -10,9 +10,7 @@ import pl.pk.flybooking.flybooking.user.model.User;
 import pl.pk.flybooking.flybooking.user.repository.UserRepository;
 
 import javax.transaction.Transactional;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,27 +23,39 @@ public class BookingService {
 
     @Transactional
     public User bookFlights(String usernameOrEmail, List<Flight> flights) {
+        Set<Flight> flightSet = new HashSet<>();
         User userDb = userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
                 .orElseThrow(() -> new GenericValidationException("userNotFound", usernameOrEmail));
 
-        carrierRepository.saveAll(flights.stream().map(Flight::getCarrier).collect(Collectors.toSet()));
+        saveCarriersFromFlights(flights);
+        addNewFlightsToSet(flightSet, flights, userDb);
+        addNewFlightsToDb(flightSet);
 
-        Set<Flight> flightSet = new HashSet<>();
-        flights.forEach(flight -> {
-            if(!userDb.getFlights().contains(flight)){
-                flightSet.add(flight);
-            }
-        });
+        userDb.getFlights().addAll(flightSet);
+        return userDb;
+    }
 
+    private void addNewFlightsToDb(Set<Flight> flightSet) {
         flightSet.forEach(flight -> {
             if (!flightRepository.existsByFlightNumberAndArrivalDateTimeAndDepartureDateTime(flight.getFlightNumber(),
                     flight.getArrivalDateTime(), flight.getDepartureDateTime())) {
                 flightRepository.save(flight);
             }
         });
+    }
 
-        System.out.println(flightSet);
-        userDb.getFlights().addAll(flightSet);
-        return userDb;
+    private void addNewFlightsToSet(Set<Flight> flightSet, List<Flight> flights, User user) {
+        flights.forEach(flight -> {
+            if (!user.getFlights().contains(flight)) {
+                flightSet.add(flight);
+            } else {
+                throw new IllegalArgumentException("flight " + flight.getFlightNumber() + " already reserved");
+            }
+        });
+    }
+
+    private void saveCarriersFromFlights(List<Flight> flights) {
+        carrierRepository.saveAll(flights.stream().map(Flight::getCarrier).collect(Collectors.toSet()));
+
     }
 }
