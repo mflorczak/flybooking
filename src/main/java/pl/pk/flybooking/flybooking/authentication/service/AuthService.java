@@ -70,8 +70,7 @@ public class AuthService {
     }
 
     public ApiResponse forgotUserPassword(User user, Locale locale) {
-        User existingUser = userRepository.findByUsernameOrEmail(user.getUsername(), user.getUsername())
-                .orElseThrow(() -> new GenericValidationException("userNotFound", user.getUsername()));
+        User existingUser = findUserByUsernameOrEmail(user.getName(), user.getEmail());
 
         String subject = messageTranslateService.translatedMessage("completePasswordReset", locale);
         String text = messageTranslateService.translatedMessage("completePasswordResetProcess", locale);
@@ -102,7 +101,11 @@ public class AuthService {
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = tokenProvider.generateToken(authentication);
-        return new JwtAuthenticationResponse(jwt);
+        User user = findUserByUsernameOrEmail(loginRequest.getUsernameOrEmail(), loginRequest.getUsernameOrEmail());
+        JwtAuthenticationResponse authenticationResponse = new JwtAuthenticationResponse(jwt);
+        authenticationResponse.setEmailAddress(user.getEmail());
+        authenticationResponse.setUsername(user.getUsername());
+        return authenticationResponse;
     }
 
     @Transactional
@@ -112,9 +115,13 @@ public class AuthService {
 
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         tokenUser.setPassword(encodedPassword);
-        userRepository.save(tokenUser);
 
         String responseMessage = messageTranslateService.translatedMessage("passwordSuccessfullyReset", locale);
         return new ApiResponse(true, responseMessage);
+    }
+
+    public User findUserByUsernameOrEmail(String username, String email) {
+        return userRepository.findByUsernameOrEmail(username, email)
+                .orElseThrow(() -> new GenericValidationException("userNotFound", username));
     }
 }

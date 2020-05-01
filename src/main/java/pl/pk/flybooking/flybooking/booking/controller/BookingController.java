@@ -2,7 +2,6 @@ package pl.pk.flybooking.flybooking.booking.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.pk.flybooking.flybooking.booking.service.BookingService;

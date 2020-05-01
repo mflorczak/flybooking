@@ -4,13 +4,14 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
+@Setter
 public class JwtAuthenticationResponse {
 
-    @Setter
     private String accessToken;
-    private String tokenType = "Bearer ";
+    private String username;
+    private String emailAddress;
 
     public JwtAuthenticationResponse(String accessToken) {
-        this.accessToken = accessToken;
+        this.accessToken = "Bearer " + accessToken;
     }
 }
