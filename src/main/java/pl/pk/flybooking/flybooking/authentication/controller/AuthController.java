@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.servlet.view.RedirectView;
 import pl.pk.flybooking.flybooking.authentication.service.AuthService;
 import pl.pk.flybooking.flybooking.confirmation.model.ConfirmationToken;
 import pl.pk.flybooking.flybooking.confirmation.repository.ConfirmationTokenRepository;
@@ -45,7 +46,7 @@ public class AuthController {
     }
 
     @GetMapping("/confirm-account")
-    public ResponseEntity<ApiResponse> confirmUserAccount(@RequestParam String token, Locale locale) {
+    public RedirectView confirmUserAccount(@RequestParam String token, Locale locale) {
         ConfirmationToken confirmationToken = confirmationTokenRepository.findByToken(token)
                 .orElseThrow(() -> new GenericValidationException("invalidLink"));
 
@@ -56,11 +57,7 @@ public class AuthController {
         user.setEnabled(true);
         userRepository.save(user);
 
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentContextPath().path("/api/auth/redirect")
-                .build().toUri();
-        String responseMessage = messageTranslateService.translatedMessage("verificationFinishedSuccessfully", locale);
-        return ResponseEntity.created(location).body(new ApiResponse(true, responseMessage));
+        return new RedirectView("http://localhost:8081/?#/login");
     }
 
     @PostMapping("/forgot-password")
