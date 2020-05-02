@@ -28,6 +28,7 @@ import pl.pk.flybooking.flybooking.user.repository.UserRepository;
 import javax.transaction.Transactional;
 import java.util.Collections;
 import java.util.Locale;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -69,13 +70,25 @@ public class AuthService {
         return new ApiResponse(true, responseMessage);
     }
 
+    @Transactional
     public ApiResponse forgotUserPassword(User user, Locale locale) {
-        User existingUser = findUserByUsernameOrEmail(user.getName(), user.getEmail());
+        User existingUser = findUserByUsernameOrEmail(user.getUsername(), user.getUsername());
+
+        final String newPassword = UUID.randomUUID().toString().substring(0, 10);
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        existingUser.setPassword(encodedPassword);
 
         String subject = messageTranslateService.translatedMessage("completePasswordReset", locale);
         String text = messageTranslateService.translatedMessage("completePasswordResetProcess", locale);
         String responseMessage = messageTranslateService.translatedMessage("requestResetPassword", locale);
-        sendMailWithTokenToUser(existingUser, subject,text, "confirm-reset");
+
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(existingUser.getEmail());
+        mailMessage.setSubject(subject);
+        mailMessage.setText(text + newPassword);
+
+        senderService.sendEmail(mailMessage);
+
         return new ApiResponse(true , responseMessage);
     }
 
