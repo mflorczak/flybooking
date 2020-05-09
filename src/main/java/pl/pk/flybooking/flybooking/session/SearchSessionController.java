@@ -12,7 +12,7 @@ import java.text.ParseException;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "/search")
+@RequestMapping(path = "api/search")
 @AllArgsConstructor
 public class SearchSessionController {
 

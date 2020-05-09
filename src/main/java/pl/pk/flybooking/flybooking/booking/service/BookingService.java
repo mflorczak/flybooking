@@ -11,7 +11,6 @@ import pl.pk.flybooking.flybooking.user.repository.UserRepository;
 
 import javax.transaction.Transactional;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -22,13 +21,13 @@ public class BookingService {
     private final FlightRepository flightRepository;
 
     @Transactional
-    public User bookFlights(String usernameOrEmail, List<Flight> flights) {
+    public User bookFlights(String usernameOrEmail, Flight flight) {
         Set<Flight> flightSet = new HashSet<>();
         User userDb = userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
                 .orElseThrow(() -> new GenericValidationException("userNotFound", usernameOrEmail));
 
-        saveCarriersFromFlights(flights);
-        addNewFlightsToSet(flightSet, flights, userDb);
+        saveCarriersFromFlights(flight);
+        addNewFlightsToSet(flightSet, flight, userDb);
         addNewFlightsToDb(flightSet);
 
         userDb.getFlights().addAll(flightSet);
@@ -44,18 +43,28 @@ public class BookingService {
         });
     }
 
-    private void addNewFlightsToSet(Set<Flight> flightSet, List<Flight> flights, User user) {
-        flights.forEach(flight -> {
-            if (!user.getFlights().contains(flight)) {
-                flightSet.add(flight);
-            } else {
-                throw new IllegalArgumentException("flight " + flight.getFlightNumber() + " already reserved");
-            }
-        });
+    private void addNewFlightsToSet(Set<Flight> flightSet, Flight flight, User user) {
+        if (!user.getFlights().contains(flight)) {
+            flightSet.add(flight);
+        } else {
+            throw new IllegalArgumentException("flight " + flight.getFlightNumber() + " already reserved");
+        }
     }
 
-    private void saveCarriersFromFlights(List<Flight> flights) {
-        carrierRepository.saveAll(flights.stream().map(Flight::getCarrier).collect(Collectors.toSet()));
+    private void saveCarriersFromFlights(Flight flight) {
+        carrierRepository.save(flight.getCarrier());
+    }
 
+    public User bookedUserFlights(String usernameOrEmail) {
+        return userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
+                .orElseThrow(() -> new GenericValidationException("userNotFound", usernameOrEmail));
+    }
+
+    @Transactional
+    public void cancelFlight(String userEmail, Long flightId) {
+        Flight flight = flightRepository.findById(flightId)
+                .orElseThrow(() -> new GenericValidationException("flightNotFound", flightId.toString()));
+        User user = bookedUserFlights(userEmail);
+        user.removeFlight(flight);
     }
 }

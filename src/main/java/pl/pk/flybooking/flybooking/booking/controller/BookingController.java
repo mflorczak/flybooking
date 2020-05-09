@@ -19,7 +19,18 @@ public class BookingController {
 
     @JsonView(User.UserViews.Booking.class)
     @PostMapping("flight")
-    public ResponseEntity<User> bookFlights(@RequestParam String  usernameOrEmail, @RequestBody List<Flight> flights) {
-        return ResponseEntity.ok(bookingService.bookFlights(usernameOrEmail, flights));
+    public ResponseEntity<User> bookFlights(@RequestParam String  usernameOrEmail, @RequestBody Flight flight) {
+        return ResponseEntity.ok(bookingService.bookFlights(usernameOrEmail, flight));
+    }
+
+    @JsonView(User.UserViews.Booking.class)
+    @GetMapping("user-flights")
+    public ResponseEntity<User> bookedUserFlights(@RequestParam String  usernameOrEmail) {
+        return ResponseEntity.ok(bookingService.bookedUserFlights(usernameOrEmail));
+    }
+
+    @DeleteMapping("cancel-flight")
+    public void cancelFlight(@RequestParam String usernameOrEmail, @RequestParam Long flightId) {
+        bookingService.cancelFlight(usernameOrEmail, flightId);
     }
 }

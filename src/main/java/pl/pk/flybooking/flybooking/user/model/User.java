@@ -82,4 +82,8 @@ public class User extends DateAudit {
         this.password = password;
         this.email = email;
     }
+
+    public void removeFlight(Flight flight) {
+        this.flights.remove(flight);
+    }
 }
