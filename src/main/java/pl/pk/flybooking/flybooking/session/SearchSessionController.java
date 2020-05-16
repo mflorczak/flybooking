@@ -23,7 +23,6 @@ public class SearchSessionController {
     public ResponseEntity<List<Flight>> createSession(@RequestParam String originPlaceId, @RequestParam String destinationPlaceId,
                                                       @RequestParam String outboundDate, @RequestParam String inboundDate) throws UnirestException, IOException, ParseException {
         return ResponseEntity.ok(searchSessionService.getResults(searchSessionService.getSessionKey(originPlaceId, destinationPlaceId,outboundDate, inboundDate), originPlaceId, destinationPlaceId));
-
     }
 
     @GetMapping("/file")

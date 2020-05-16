@@ -43,6 +43,11 @@ public class ApiError {
             return this;
         }
 
+        public Builder authError(HttpServletRequest req) {
+            this.apiError = createBaseApiError(req, HttpStatus.UNAUTHORIZED);
+            return this;
+        }
+
         public Builder message(String string) {
             apiError.setMessage(string);
             return this;

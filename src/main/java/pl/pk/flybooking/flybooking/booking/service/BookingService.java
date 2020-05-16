@@ -47,7 +47,7 @@ public class BookingService {
         if (!user.getFlights().contains(flight)) {
             flightSet.add(flight);
         } else {
-            throw new IllegalArgumentException("flight " + flight.getFlightNumber() + " already reserved");
+            throw new GenericValidationException("flightIsAlreadyReserved", flight.getFlightNumber());
         }
     }
 

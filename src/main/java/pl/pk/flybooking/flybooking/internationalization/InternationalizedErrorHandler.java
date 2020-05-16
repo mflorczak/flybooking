@@ -3,6 +3,7 @@ package pl.pk.flybooking.flybooking.internationalization;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -51,6 +52,16 @@ public class InternationalizedErrorHandler {
 //                .trace(ex.getClass() + "\n" + ex.getStackTrace()[0].toString())
 //                .build();
 //    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ApiError handleAuthenticationException(HttpServletRequest request, AuthenticationException ex, Locale locale) {
+        return new ApiError.Builder().authError(request)
+                .message(messageSource.getMessage(ex.getClass().getSimpleName(), null, locale))
+                .trace(ex.getClass() + "\n" + ex.getStackTrace()[0].toString())
+                .build();
+
+    }
 
     @ExceptionHandler(GenericValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
