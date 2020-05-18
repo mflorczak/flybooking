@@ -1,18 +1,14 @@
 package pl.pk.flybooking.flybooking.authentication.service;
 
 import lombok.AllArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import pl.pk.flybooking.flybooking.confirmation.model.ConfirmationToken;
-import pl.pk.flybooking.flybooking.confirmation.repository.ConfirmationTokenRepository;
-import pl.pk.flybooking.flybooking.email.EmailSenderService;
+import pl.pk.flybooking.flybooking.email.service.SendEmailFactory;
+import pl.pk.flybooking.flybooking.email.service.StrategyName;
 import pl.pk.flybooking.flybooking.exception.GenericValidationException;
 import pl.pk.flybooking.flybooking.payload.ApiResponse;
 import pl.pk.flybooking.flybooking.payload.JwtAuthenticationResponse;
@@ -28,19 +24,17 @@ import pl.pk.flybooking.flybooking.user.repository.UserRepository;
 import javax.transaction.Transactional;
 import java.util.Collections;
 import java.util.Locale;
-import java.util.UUID;
 
 @Service
 @AllArgsConstructor
 public class AuthService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    private final ConfirmationTokenRepository confirmationTokenRepository;
     private final PasswordEncoder passwordEncoder;
-    private final EmailSenderService senderService;
     private final JwtTokenProvider tokenProvider;
     private final AuthenticationManager authenticationManager;
     private final MessageTranslateService messageTranslateService;
+    private final SendEmailFactory sendEmailFactory;
 
     @Transactional
     public ApiResponse registrationInactiveUser(User user, Locale locale) {
@@ -61,10 +55,7 @@ public class AuthService {
         user.setEnabled(false);
 
         userRepository.save(user);
-        String subject = messageTranslateService.translatedMessage("completeRegistration", locale);
-        String text = messageTranslateService.translatedMessage("confirmAccount", locale);
-
-        sendMailWithTokenToUser(user, subject, text, "confirm-account");
+        sendEmailFactory.findEmailStrategy(StrategyName.CONFIRM_ACCOUNT).sendEmail(user, locale);
         String responseMessage = messageTranslateService.translatedMessage("userRegisteredSuccessfully", locale);
 
         return new ApiResponse(true, responseMessage);
@@ -74,35 +65,10 @@ public class AuthService {
     public ApiResponse forgotUserPassword(User user, Locale locale) {
         User existingUser = findUserByUsernameOrEmail(user.getUsername(), user.getUsername());
 
-        final String newPassword = UUID.randomUUID().toString().substring(0, 10);
-        String encodedPassword = passwordEncoder.encode(newPassword);
-        existingUser.setPassword(encodedPassword);
+        sendEmailFactory.findEmailStrategy(StrategyName.RESET_PASSWORD).sendEmail(existingUser, locale);
 
-        String subject = messageTranslateService.translatedMessage("completePasswordReset", locale);
-        String text = messageTranslateService.translatedMessage("completePasswordResetProcess", locale);
         String responseMessage = messageTranslateService.translatedMessage("requestResetPassword", locale);
-
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(existingUser.getEmail());
-        mailMessage.setSubject(subject);
-        mailMessage.setText(text + newPassword);
-
-        senderService.sendEmail(mailMessage);
-
         return new ApiResponse(true , responseMessage);
-    }
-
-    private void sendMailWithTokenToUser(User user, String subject, String text, String action) {
-        ConfirmationToken confirmationToken = new ConfirmationToken(user);
-
-        confirmationTokenRepository.save(confirmationToken);
-
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(user.getEmail());
-        mailMessage.setSubject(subject);
-        mailMessage.setText(text + "http://localhost:8080/api/auth/" + action + "?token="+confirmationToken.getToken());
-
-        senderService.sendEmail(mailMessage);
     }
 
     public JwtAuthenticationResponse generateResponse(LoginRequest loginRequest) {
