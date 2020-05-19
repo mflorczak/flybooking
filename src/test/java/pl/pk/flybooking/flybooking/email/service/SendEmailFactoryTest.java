@@ -1,20 +1,23 @@
 package pl.pk.flybooking.flybooking.email.service;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 
 @SpringBootTest
-class SendEmailFactoryTest {
+@RunWith(SpringRunner.class)
+public class SendEmailFactoryTest {
 
     @Autowired
     private SendEmailFactory emailFactory;
 
     @Test
-    void findConfirmationAccountStrategy() {
+    public void findConfirmationAccountStrategy() {
         SendEmailStrategy emailStrategy = emailFactory.findEmailStrategy(StrategyName.CONFIRM_ACCOUNT);
 
         assertEquals(StrategyName.CONFIRM_ACCOUNT, emailStrategy.getStrategyName());
@@ -22,7 +25,7 @@ class SendEmailFactoryTest {
     }
 
     @Test
-    void findResetPasswordStrategy() {
+    public void findResetPasswordStrategy() {
         SendEmailStrategy emailStrategy = emailFactory.findEmailStrategy(StrategyName.RESET_PASSWORD);
 
         assertEquals(StrategyName.RESET_PASSWORD, emailStrategy.getStrategyName());

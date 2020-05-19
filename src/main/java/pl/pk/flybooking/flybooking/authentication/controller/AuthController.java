@@ -46,7 +46,7 @@ public class AuthController {
     }
 
     @GetMapping("/confirm-account")
-    public RedirectView confirmUserAccount(@RequestParam String token, Locale locale) {
+    public RedirectView confirmUserAccount(@RequestParam String token) {
         ConfirmationToken confirmationToken = confirmationTokenRepository.findByToken(token)
                 .orElseThrow(() -> new GenericValidationException("invalidLink"));
 
