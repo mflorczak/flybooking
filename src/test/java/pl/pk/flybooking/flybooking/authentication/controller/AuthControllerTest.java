@@ -1,11 +1,9 @@
 package pl.pk.flybooking.flybooking.authentication.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -21,8 +19,6 @@ import pl.pk.flybooking.flybooking.confirmation.model.ConfirmationToken;
 import pl.pk.flybooking.flybooking.confirmation.repository.ConfirmationTokenRepository;
 import pl.pk.flybooking.flybooking.email.service.ConfirmationAccountStrategy;
 import pl.pk.flybooking.flybooking.email.service.SendEmailFactory;
-import pl.pk.flybooking.flybooking.exception.GenericValidationException;
-import pl.pk.flybooking.flybooking.payload.ApiResponse;
 import pl.pk.flybooking.flybooking.payload.LoginRequest;
 import pl.pk.flybooking.flybooking.payload.service.MessageTranslateService;
 import pl.pk.flybooking.flybooking.role.model.Role;
@@ -36,7 +32,8 @@ import java.util.Locale;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;

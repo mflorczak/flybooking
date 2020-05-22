@@ -23,15 +23,15 @@ public class BookingService {
     @Transactional
     public User bookFlights(String usernameOrEmail, Flight flight) {
         Set<Flight> flightSet = new HashSet<>();
-        User userDb = userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
+        User user = userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
                 .orElseThrow(() -> new GenericValidationException("userNotFound", usernameOrEmail));
 
         saveCarriersFromFlights(flight);
-        addNewFlightsToSet(flightSet, flight, userDb);
+        addNewFlightsToSet(flightSet, flight, user);
         addNewFlightsToDb(flightSet);
 
-        userDb.getFlights().addAll(flightSet);
-        return userDb;
+        user.getFlights().addAll(flightSet);
+        return user;
     }
 
     private void addNewFlightsToDb(Set<Flight> flightSet) {

@@ -88,6 +88,11 @@ public class SearchSessionService {
     }
 
     public List<Flight> getResults(String sessionKey, String originPlaceId, String destinationPlaceId) throws UnirestException, IOException, ParseException {
+
+        if(sessionKey==null){
+            throw new IllegalArgumentException("session key is null");
+        }
+
         HttpResponse<JsonNode> response = Unirest.get(RESULTS_UNIREST_URL + sessionKey + RESULTS_URL_ENDING)
                 .header(UNIREST_POST_URL_HEADER, X_RAPIDAPI_HOST)
                 .header(X_RAPIDAPI_KEY_HEADER, X_RAPIDAPI_KEY)
